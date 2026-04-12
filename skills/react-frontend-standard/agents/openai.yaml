@@ -1,0 +1,7 @@
+interface:
+  display_name: "React Frontend Standard"
+  short_description: "Shared architecture and coding standards for React frontend repositories."
+  default_prompt: "Use $react-frontend-standard to scaffold or align architecture and coding standards for this React frontend repository."
+
+policy:
+  allow_implicit_invocation: true

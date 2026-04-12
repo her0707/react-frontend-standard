@@ -1,0 +1,22 @@
+{
+  "name": "@your-id/react-frontend-standard",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "react-frontend-standard": "./bin/react-frontend-standard.js",
+    "rfs": "./bin/react-frontend-standard.js"
+  },
+  "files": [
+    "bin",
+    "skills",
+    "templates",
+    "examples",
+    "docs",
+    "README.md"
+  ],
+  "scripts": {
+    "start": "node ./bin/react-frontend-standard.js",
+    "init": "node ./bin/react-frontend-standard.js init"
+  }
+}
