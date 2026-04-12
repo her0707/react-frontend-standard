@@ -7,14 +7,7 @@ Reusable structure, documentation, and agent skill for React frontend repositori
 Recommended naming:
 
 - GitHub repository: `react-frontend-standard`
-- npm package: `@your-id/react-frontend-standard`
 - CLI aliases: `react-frontend-standard` and `rfs`
-
-If this directory is published as a package later, the default UX should be the interactive setup wizard:
-
-```bash
-npx @your-id/react-frontend-standard
-```
 
 For local use inside this repository:
 
@@ -110,6 +103,6 @@ Publishing to npm is intentionally deferred for now.
 Recommended sequence:
 
 1. move this directory into its own repository
-2. replace `your-id` with the real npm scope
+2. decide the final npm scope and package name when publishing is actually in scope
 3. validate the CLI in isolation
 4. publish only after the standalone repository structure is stable
