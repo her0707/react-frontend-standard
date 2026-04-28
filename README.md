@@ -111,24 +111,3 @@ react-frontend-standard/
 ## Source
 
 This package was derived from the working standards used in the surrounding project and generalized for reuse.
-
-## Publishing To npm
-
-This package is configured for npm publishing. Before publishing, make sure the
-package name in `package.json` is the final npm package name you want to own.
-
-```bash
-npm login
-npm pack --dry-run
-npm publish
-```
-
-If you change the package name to a scoped public package such as
-`@your-scope/react-frontend-standard`, publish with `npm publish --access public`.
-
-After publishing, downstream projects can run:
-
-```bash
-npx react-frontend-standard init .
-npx react-frontend-standard init . --with-skill
-```

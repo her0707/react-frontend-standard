@@ -36,8 +36,6 @@
   },
   "scripts": {
     "start": "node ./bin/react-frontend-standard.js",
-    "init": "node ./bin/react-frontend-standard.js init",
-    "pack:dry-run": "npm pack --dry-run",
-    "publish:public": "npm publish"
+    "init": "node ./bin/react-frontend-standard.js init"
   }
 }
