@@ -1,7 +1,7 @@
 {
-  "name": "@your-id/react-frontend-standard",
+  "name": "react-frontend-standard",
   "version": "0.1.0",
-  "private": true,
+  "description": "Reusable React frontend standard docs, templates, and local agent skill installer.",
   "type": "module",
   "bin": {
     "react-frontend-standard": "./bin/react-frontend-standard.js",
@@ -15,8 +15,29 @@
     "docs",
     "README.md"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/her0707/react-frontend-standard.git"
+  },
+  "homepage": "https://github.com/her0707/react-frontend-standard#readme",
+  "bugs": {
+    "url": "https://github.com/her0707/react-frontend-standard/issues"
+  },
+  "keywords": [
+    "react",
+    "frontend",
+    "standards",
+    "codex",
+    "agents"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "start": "node ./bin/react-frontend-standard.js",
-    "init": "node ./bin/react-frontend-standard.js init"
+    "init": "node ./bin/react-frontend-standard.js init",
+    "pack:dry-run": "npm pack --dry-run",
+    "publish:public": "npm publish"
   }
 }

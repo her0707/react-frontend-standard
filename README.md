@@ -4,10 +4,23 @@ Reusable structure, documentation, and agent skill for React frontend repositori
 
 ## Quick Start
 
-Recommended naming:
+Install into another React project with `npx`:
 
-- GitHub repository: `react-frontend-standard`
-- CLI aliases: `react-frontend-standard` and `rfs`
+```bash
+npx react-frontend-standard init .
+```
+
+Install the project-local agent skill as well:
+
+```bash
+npx react-frontend-standard init . --with-skill
+```
+
+Install the skill into your user environment instead:
+
+```bash
+npx react-frontend-standard init . --with-user-skill
+```
 
 For local use inside this repository:
 
@@ -27,9 +40,12 @@ If you prefer non-interactive usage, the CLI still supports:
 ```bash
 node ./bin/react-frontend-standard.js init .
 node ./bin/react-frontend-standard.js init . --with-skill
+node ./bin/react-frontend-standard.js init . --with-user-skill
+node ./bin/react-frontend-standard.js init . --overwrite
 ```
 
-After package installation, a short alias such as `rfs` can also be exposed.
+After package installation, both `react-frontend-standard` and `rfs` are exposed as
+CLI aliases.
 
 ## What This Repo Shape Is For
 
@@ -96,13 +112,23 @@ react-frontend-standard/
 
 This package was derived from the working standards used in the surrounding project and generalized for reuse.
 
-## Publishing Note
+## Publishing To npm
 
-Publishing to npm is intentionally deferred for now.
+This package is configured for npm publishing. Before publishing, make sure the
+package name in `package.json` is the final npm package name you want to own.
 
-Recommended sequence:
+```bash
+npm login
+npm pack --dry-run
+npm publish
+```
 
-1. move this directory into its own repository
-2. decide the final npm scope and package name when publishing is actually in scope
-3. validate the CLI in isolation
-4. publish only after the standalone repository structure is stable
+If you change the package name to a scoped public package such as
+`@your-scope/react-frontend-standard`, publish with `npm publish --access public`.
+
+After publishing, downstream projects can run:
+
+```bash
+npx react-frontend-standard init .
+npx react-frontend-standard init . --with-skill
+```

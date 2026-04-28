@@ -29,13 +29,15 @@ react-frontend-standard
 
 Usage:
   react-frontend-standard
-  react-frontend-standard init [target-path] [--with-skill]
+  react-frontend-standard init [target-path] [--with-skill] [--with-user-skill] [--overwrite]
   react-frontend-standard help
 
 Examples:
   react-frontend-standard
   react-frontend-standard init .
   react-frontend-standard init ./my-app --with-skill
+  react-frontend-standard init . --with-user-skill
+  react-frontend-standard init . --overwrite
 
 What it creates:
   - AGENTS.md
@@ -216,10 +218,20 @@ if (command === "help" || command === "--help" || command === "-h") {
 
 if (command === "init") {
   const targetArg = args.find(arg => !arg.startsWith("--")) ?? ".";
-  const installSkill = args.includes("--with-skill") ? "project" : "none";
+  const wantsProjectSkill = args.includes("--with-skill");
+  const wantsUserSkill = args.includes("--with-user-skill");
+
+  if (wantsProjectSkill && wantsUserSkill) {
+    console.error("Choose either --with-skill or --with-user-skill, not both.");
+    rl.close();
+    process.exit(1);
+  }
+
+  const installSkill = wantsProjectSkill ? "project" : wantsUserSkill ? "user" : "none";
+
   initProject({
     targetRoot: path.resolve(process.cwd(), targetArg),
-    overwriteMode: "skip",
+    overwriteMode: args.includes("--overwrite") ? "overwrite" : "skip",
     installSkill,
   });
   rl.close();
