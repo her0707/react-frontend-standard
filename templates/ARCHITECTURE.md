@@ -2,18 +2,18 @@
 
 ## Purpose
 
-This document defines the frontend architecture rules used by this repository and intended to be portable across similar React projects.
+This document defines the frontend architecture rules used by this repository.
 
 - It explains where code belongs.
 - It defines ownership and layer boundaries.
-- It describes the default change unit for feature work.
+- It keeps routing frameworks as implementation details.
 - It does not define detailed coding style.
 
 Detailed implementation defaults live in `docs/coding-patterns.md`.
 
 ## Document Roles
 
-- `AGENTS.md`: short entry map for Codex and humans
+- `AGENTS.md`: short entry map for agents and maintainers
 - `ARCHITECTURE.md`: source of truth for structure, ownership, and boundaries
 - `docs/coding-patterns.md`: source of truth for coding defaults and responsibility rules
 
@@ -25,9 +25,9 @@ This repository uses a feature-centered React frontend architecture with these g
 
 1. Keep most changes inside one feature folder.
 2. Keep route entry components thin.
-3. Match feature ownership to backend domains or clear frontend use cases.
+3. Match feature ownership to backend domains or stable frontend use cases.
 4. Prefer domain-local code before promoting logic to shared layers.
-5. Keep the structure simple enough to reuse across other repositories.
+5. Keep the structure simple enough to reuse across React routing and data libraries.
 
 ## Core Principle
 
@@ -36,9 +36,9 @@ The stable center of the architecture is `features`, not the routing framework.
 That means:
 
 - `features` own business domains and frontend use cases
-- `screens` own route entry only
+- `screens` own route-facing UI composition
 - `components` own shared generic UI
-- routing implementation may differ by framework
+- framework route files remain routing shells
 
 ## Top-Level Structure
 
@@ -58,23 +58,45 @@ src/
 
 Optional top-level directories may exist when the project needs them, for example:
 
-- `routes/`
+- `app/`, `pages/`, `routes/`, or framework route modules
+- `layouts/`
 - `styles/`
 - `constants/`
-- `tests/`
+- `tests/` or `e2e/`
 - `__generated__/`
+
+## Routing Framework Boundary
+
+Framework route directories such as `src/app`, `src/pages`, or route modules are routing shells.
+
+Route files may:
+
+- read route params and search params
+- prepare route metadata
+- connect framework providers or layouts
+- perform framework-level prefetching when the framework requires it
+- render a screen component
+
+Route files should avoid:
+
+- domain-heavy UI
+- raw transport setup in JSX
+- large DTO mapping
+- browser-only persistence details
+- business workflows that belong to a feature
 
 ## Directory Responsibilities
 
 ### `src/screens`
 
-Own route-matching top-level screen components.
+Own route-facing top-level screen components.
 
 Rules:
 
 - each screen should correspond to a route or route-like page entry
 - screens should stay thin
 - screens compose feature components and feature hooks
+- screens may receive route-derived props from framework route files
 - screens should not become a second feature layer
 
 ### `src/features`
@@ -89,7 +111,7 @@ Features are usually derived from one of these:
 
 ### `src/components`
 
-Own shared generic UI primitives reused across features.
+Own shared generic UI primitives reused across unrelated features.
 
 ### `src/hooks`
 
@@ -124,18 +146,30 @@ features/<feature>/
 
 Optional additions by project needs:
 
-- `<Feature>.store.ts`
-- `<Feature>.query.ts`
-- `<Feature>.fragment.ts`
-- `<Feature>.adapter.ts`
+- `<Feature>.query.ts`: query keys, cache identity, and query option factories
+- `<Feature>.server.ts`: server-only feature access
+- `<Feature>.client.ts`: browser/client feature access
+- `<Feature>.store.ts`: feature-owned state or browser-only side-effect boundary
+- `<Feature>.adapter.ts`: conversion between external contracts and internal shapes
+- `<Feature>.fragment.ts`: GraphQL fragments or query fragments when used
+
+Optional files should appear when they clarify responsibilities, not because every feature must use every suffix.
 
 ## Ownership Model
 
+### Put code in framework route files when
+
+- it is required by the routing framework
+- it reads route params or search params
+- it connects route-level metadata, layouts, or providers
+- it delegates UI to a screen
+
 ### Put code in `screens` when
 
-- it is the route entry component
+- it is route-facing UI composition
 - it mainly composes feature components
-- it reads route params or page-level search params
+- it receives route-derived props
+- it places sections in page order
 
 ### Put code in `features/<feature>/components` when
 
@@ -147,6 +181,7 @@ Optional additions by project needs:
 
 - it has no domain meaning
 - it is reusable across unrelated features
+- it can be understood without backend-specific contracts
 
 ## What About Widgets
 
@@ -163,12 +198,13 @@ Only consider a separate `widgets` layer when all of the following are true:
 
 Use this dependency direction as the default rule:
 
-1. `screens`
-2. `features/*/components`
-3. `features/*/hooks`
-4. `features/*/(api|service|schema|type|util|optional files)`
-5. shared `components`, `hooks`, `lib`, `services`, `utils`, `types`
-6. optional generated artifacts
+1. framework route files
+2. `screens`
+3. `features/*/components`
+4. `features/*/hooks`
+5. `features/*/(api|service|schema|type|util|query|server|client|store|adapter|optional files)`
+6. shared `components`, `hooks`, `lib`, `services`, `utils`, `types`
+7. optional generated artifacts
 
 ## REST and Data Access
 
@@ -176,32 +212,27 @@ For REST-oriented projects:
 
 - keep raw HTTP calls in `*.api.ts`
 - keep use-case orchestration in `*.service.ts`
+- keep cache/query identity in `*.query.ts` when using a query library
+- keep server-only access in `*.server.ts` when the framework has server execution
+- keep client-side access in `*.client.ts` when browser calls differ from server calls
 - keep screen-facing state connection in feature hooks
-- do not place transport details inside screens or feature components
+- do not place transport details inside route files, screens, or feature components
 
-## Screen Design Rule
+Projects using GraphQL, generated clients, server actions, loaders, or other data systems should keep the same ownership principle while adapting the concrete files.
 
-Screens should stay thin.
+## Browser-Only Boundary
 
-Good screen responsibilities:
+Browser-only APIs such as `window`, local storage APIs, observers, or direct DOM integrations should not leak into route files, screens, or general feature UI.
 
-- connect route to screen
-- read route params
-- compose feature components
-- place sections in the right order
-
-Bad screen responsibilities:
-
-- raw API calls
-- large data normalization logic
-- transport-specific request setup
+When a feature owns browser-only persistence or subscriptions, isolate that behavior behind a feature-local boundary such as `*.store.ts` or `*.adapter.ts`. The standard does not choose a storage backend.
 
 ## Decision Checklist
 
 Before adding or moving code, answer:
 
-- is this a route entry, a feature responsibility, or a shared primitive
+- is this required by the routing framework
+- is this route-facing composition, feature-owned behavior, or a shared primitive
 - which feature owns the business meaning
-- does this code call HTTP directly
-- should this code live in `api`, `service`, `hook`, or `component`
+- does this code call transport, browser-only APIs, or external systems directly
+- should this code live in `api`, `service`, `hook`, `query`, `server`, `client`, `store`, `adapter`, or `component`
 - is a new layer actually needed, or does it only add indirection
