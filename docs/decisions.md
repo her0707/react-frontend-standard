@@ -15,3 +15,7 @@ Many projects do not benefit from a separate `widgets` layer. It becomes useful 
 ## Why REST uses `api -> service -> hook`
 
 REST projects usually need explicit transport code, orchestration, and screen-facing state wiring. Keeping those layers visible improves readability and ownership clarity.
+
+## Why feature files repeat the feature name
+
+Feature-root support files use names such as `Reservation.api.ts` instead of role-only names such as `api.ts`. Repeating the feature name keeps imports, editor tabs, search results, and agent refactors clear even when many feature folders contain the same roles.

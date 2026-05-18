@@ -155,6 +155,9 @@ Optional additions by project needs:
 
 Optional files should appear when they clarify responsibilities, not because every feature must use every suffix.
 
+When a feature-root role file exists, it must use `<Feature>.<role>.ts`.
+Do not use role-only names such as `api.ts`, `service.ts`, `schema.ts`, `type.ts`, `types.ts`, `query.ts`, `server.ts`, `client.ts`, `store.ts`, or `adapter.ts` inside `features/<feature>/`.
+
 ## Ownership Model
 
 ### Put code in framework route files when
@@ -210,13 +213,15 @@ Use this dependency direction as the default rule:
 
 For REST-oriented projects:
 
-- keep raw HTTP calls in `*.api.ts`
-- keep use-case orchestration in `*.service.ts`
-- keep cache/query identity in `*.query.ts` when using a query library
-- keep server-only access in `*.server.ts` when the framework has server execution
-- keep client-side access in `*.client.ts` when browser calls differ from server calls
+- keep raw HTTP calls in `<Feature>.api.ts`
+- keep use-case orchestration in `<Feature>.service.ts`
+- keep cache/query identity in `<Feature>.query.ts` when using a query library
+- keep server-only access in `<Feature>.server.ts` when the framework has server execution
+- keep client-side access in `<Feature>.client.ts` when browser calls differ from server calls
 - keep screen-facing state connection in feature hooks
 - do not place transport details inside route files, screens, or feature components
+
+These files still use feature-prefixed names: `<Feature>.api.ts`, `<Feature>.service.ts`, `<Feature>.query.ts`, `<Feature>.server.ts`, and `<Feature>.client.ts`.
 
 Projects using GraphQL, generated clients, server actions, loaders, or other data systems should keep the same ownership principle while adapting the concrete files.
 
@@ -224,7 +229,7 @@ Projects using GraphQL, generated clients, server actions, loaders, or other dat
 
 Browser-only APIs such as `window`, local storage APIs, observers, or direct DOM integrations should not leak into route files, screens, or general feature UI.
 
-When a feature owns browser-only persistence or subscriptions, isolate that behavior behind a feature-local boundary such as `*.store.ts` or `*.adapter.ts`. The standard does not choose a storage backend.
+When a feature owns browser-only persistence or subscriptions, isolate that behavior behind a feature-local boundary such as `<Feature>.store.ts` or `<Feature>.adapter.ts`. The standard does not choose a storage backend.
 
 ## Decision Checklist
 

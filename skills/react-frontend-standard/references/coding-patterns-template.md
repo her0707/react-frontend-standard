@@ -24,8 +24,37 @@ This document defines the coding defaults used by this repository.
 - feature-owned UI goes in `features/<feature>/components`
 - shared generic UI goes in `components`
 - feature-owned screen state and request state go in `features/<feature>/hooks`
-- raw REST transport logic goes in `features/<feature>/*.api.ts`
-- use-case orchestration goes in `features/<feature>/*.service.ts`
+- raw REST transport logic goes in `features/<feature>/<Feature>.api.ts`
+- use-case orchestration goes in `features/<feature>/<Feature>.service.ts`
+
+## Required Feature File Naming
+
+Feature-root support files must include the feature name before the role suffix.
+
+Use this pattern:
+
+- `Reservation.api.ts`, not `api.ts`
+- `Reservation.service.ts`, not `service.ts`
+- `Reservation.schema.ts`, not `schema.ts`
+- `Reservation.type.ts`, not `type.ts` or `types.ts`
+
+This applies to every feature-root role file when it exists:
+
+- `Feature.api.ts`
+- `Feature.service.ts`
+- `Feature.schema.ts`
+- `Feature.type.ts`
+- `Feature.util.ts`
+- `Feature.query.ts`
+- `Feature.server.ts`
+- `Feature.client.ts`
+- `Feature.store.ts`
+- `Feature.adapter.ts`
+- `Feature.fragment.ts`
+
+Do not create role-only filenames in `features/<feature>/`, such as `api.ts`, `service.ts`, `schema.ts`, `type.ts`, `types.ts`, `util.ts`, `utils.ts`, `query.ts`, `server.ts`, `client.ts`, `store.ts`, or `adapter.ts`.
+
+Use the feature-name prefix even when the folder already names the feature. This keeps imports, editor tabs, search results, and agent refactors unambiguous.
 
 ## Responsibility Table
 
@@ -35,26 +64,26 @@ This document defines the coding defaults used by this repository.
 | `screens` | route-facing composition | feature composition, page layout order, route-derived props | raw API calls, DTO shaping, large business logic |
 | `features/<feature>/components` | feature-owned UI | forms, lists, detail panels, modals, domain sections | transport setup, generic shared primitive extraction |
 | `features/<feature>/hooks` | screen-facing feature state | loading/error state, mutations, feature form state, derived values | JSX-heavy rendering, generic utilities |
-| `features/<feature>/*.api.ts` | raw transport layer | endpoints, methods, params, headers, request and response calls | screen logic, JSX, business orchestration |
-| `features/<feature>/*.service.ts` | use-case orchestration | response mapping, multi-call flow, reusable actions | route coupling, visual concerns |
-| `features/<feature>/*.query.ts` | query/cache contract | query keys, query options, cache identity | rendering, raw component event logic |
-| `features/<feature>/*.server.ts` | server-only feature access | server runtime calls, server-only secrets, server-side fetch wrappers | browser APIs, client-only state |
-| `features/<feature>/*.client.ts` | client-side feature access | browser-safe fetch wrappers, client runtime calls | server-only secrets, framework route logic |
-| `features/<feature>/*.store.ts` | feature-owned state boundary | feature persistence, subscriptions, browser-only side effects | JSX, route coupling, generic unrelated storage |
-| `features/<feature>/*.adapter.ts` | boundary conversion | external-to-internal mapping, generated client adaptation | rendering, request orchestration |
-| `features/<feature>/*.schema.ts` | validation and parsing | form validation, boundary validation, parsing | transport setup, rendering |
-| `features/<feature>/*.type.ts` | feature contracts | DTO types, request types, view model types | execution logic |
+| `features/<feature>/<Feature>.api.ts` | raw transport layer | endpoints, methods, params, headers, request and response calls | screen logic, JSX, business orchestration |
+| `features/<feature>/<Feature>.service.ts` | use-case orchestration | response mapping, multi-call flow, reusable actions | route coupling, visual concerns |
+| `features/<feature>/<Feature>.query.ts` | query/cache contract | query keys, query options, cache identity | rendering, raw component event logic |
+| `features/<feature>/<Feature>.server.ts` | server-only feature access | server runtime calls, server-only secrets, server-side fetch wrappers | browser APIs, client-only state |
+| `features/<feature>/<Feature>.client.ts` | client-side feature access | browser-safe fetch wrappers, client runtime calls | server-only secrets, framework route logic |
+| `features/<feature>/<Feature>.store.ts` | feature-owned state boundary | feature persistence, subscriptions, browser-only side effects | JSX, route coupling, generic unrelated storage |
+| `features/<feature>/<Feature>.adapter.ts` | boundary conversion | external-to-internal mapping, generated client adaptation | rendering, request orchestration |
+| `features/<feature>/<Feature>.schema.ts` | validation and parsing | form validation, boundary validation, parsing | transport setup, rendering |
+| `features/<feature>/<Feature>.type.ts` | feature contracts | DTO types, request types, view model types | execution logic |
 | `components` | shared generic UI | Button, Modal, EmptyState, DataTable | feature ownership, backend-specific contracts |
 
 ## Optional Feature Files
 
 Optional files should be added when they clarify a real boundary:
 
-- add `*.query.ts` when cache identity, query keys, or query options are repeated or need tests
-- add `*.server.ts` when server runtime behavior differs from browser behavior
-- add `*.client.ts` when browser/client calls need a separate boundary
-- add `*.store.ts` when a feature owns persistent state, subscriptions, or browser-only side effects
-- add `*.adapter.ts` when external contracts need conversion before the feature uses them
+- add `<Feature>.query.ts` when cache identity, query keys, or query options are repeated or need tests
+- add `<Feature>.server.ts` when server runtime behavior differs from browser behavior
+- add `<Feature>.client.ts` when browser/client calls need a separate boundary
+- add `<Feature>.store.ts` when a feature owns persistent state, subscriptions, or browser-only side effects
+- add `<Feature>.adapter.ts` when external contracts need conversion before the feature uses them
 
 Do not create every optional file by default.
 
@@ -106,10 +135,10 @@ Keep raw transport details out of route files, screens, and feature components.
 
 When the project uses server/client runtime separation or a query library, insert the optional feature files at the boundary they clarify:
 
-- `*.query.ts` owns query keys and options
-- `*.server.ts` owns server-only access
-- `*.client.ts` owns client-side access
-- `*.adapter.ts` owns external contract conversion
+- `<Feature>.query.ts` owns query keys and options
+- `<Feature>.server.ts` owns server-only access
+- `<Feature>.client.ts` owns client-side access
+- `<Feature>.adapter.ts` owns external contract conversion
 
 ## Testing Defaults
 
