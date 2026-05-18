@@ -1,0 +1,43 @@
+# Routing Framework Notes
+
+Use these notes when applying the standard to a project with framework-owned routing.
+
+## Core Rule
+
+The routing framework is not the architecture center. Route files are shells that connect framework requirements to screen components.
+
+## Route Files May Own
+
+- route params and search params
+- metadata functions
+- framework loaders, actions, or prefetch hooks
+- layout and provider connection required by the framework
+- rendering the route-facing screen
+
+## Route Files Should Avoid
+
+- domain-heavy JSX
+- raw HTTP setup in component bodies
+- DTO normalization
+- browser-only persistence details
+- feature workflows that can be named and tested inside `features/<feature>`
+
+## Common Mappings
+
+| Framework shape | Treat as | Preferred delegation |
+|---|---|---|
+| `src/app/**/page.tsx` | routing shell | render a `src/screens/*Screen.tsx` component |
+| `src/pages/*.tsx` | routing shell | render a `src/screens/*Screen.tsx` component |
+| route module with loader/action | routing shell and framework boundary | keep feature logic in feature services or adapters |
+| nested layout route | routing shell or layout integration | keep reusable layout components outside domain features unless one feature owns them |
+
+## Decision Check
+
+Ask these questions before adding logic to a route file:
+
+- Does the framework require this code to live here?
+- Can this be named as a feature use case?
+- Would this logic be useful without knowing the route path?
+- Can this be unit tested more easily in a feature file?
+
+If the answer points away from the framework, move the logic into a screen, feature hook, service, adapter, or utility.
