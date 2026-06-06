@@ -14,6 +14,7 @@ This repository uses local project documents together with the optional local sk
 
 - Use local project documents for normal feature work.
 - Use `react-frontend-standard` when bootstrapping a React repository, aligning an existing structure, reviewing code placement, or refreshing standard documents.
+- If `.react-frontend-standard/manifest.json` exists, use `npx -y react-frontend-standard@latest check .` to check standard drift and `npx -y react-frontend-standard@latest sync .` to refresh safely.
 - If the reusable standard and local project docs conflict, local project docs win.
 - Before relying on this map, verify that referenced files, commands, route entries, provider files, and feature folders still exist.
 

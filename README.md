@@ -16,6 +16,12 @@ Install the project-local agent skill as well:
 npx react-frontend-standard init . --with-skill
 ```
 
+Install the project-local skill and Codex / Claude Code session-start hooks:
+
+```bash
+npx react-frontend-standard init . --with-skill --with-hooks
+```
+
 Install the skill into your user environment instead:
 
 ```bash
@@ -33,6 +39,7 @@ The wizard guides you through:
 - target project path
 - whether to install the skill
 - whether the skill should be installed into the project or the user environment
+- whether to install Codex and Claude Code SessionStart update hooks
 - how to handle existing files
 
 If you prefer non-interactive usage, the CLI still supports:
@@ -40,12 +47,48 @@ If you prefer non-interactive usage, the CLI still supports:
 ```bash
 node ./bin/react-frontend-standard.js init .
 node ./bin/react-frontend-standard.js init . --with-skill
+node ./bin/react-frontend-standard.js init . --with-skill --with-hooks
 node ./bin/react-frontend-standard.js init . --with-user-skill
 node ./bin/react-frontend-standard.js init . --overwrite
+node ./bin/react-frontend-standard.js check .
+node ./bin/react-frontend-standard.js sync .
 ```
 
 After package installation, both `react-frontend-standard` and `rfs` are exposed as
 CLI aliases.
+
+## Version Sync
+
+`init` writes `.react-frontend-standard/manifest.json` into the target project.
+That manifest records the installed package version, generated file hashes, skill
+install mode, and whether update hooks were installed.
+
+Check whether a target project is behind the npm release:
+
+```bash
+npx -y react-frontend-standard@latest check .
+```
+
+Refresh safely from the latest package:
+
+```bash
+npx -y react-frontend-standard@latest sync .
+```
+
+`sync` refreshes the installed skill automatically. It updates generated docs and
+hook files only when they still match the previously installed hash, preserving
+local edits by reporting `skip modified: <path>`. Use `--overwrite` only when the
+target project's local changes should be replaced.
+
+When installed with `--with-hooks`, the target project receives:
+
+- `.react-frontend-standard/hooks/session-start.mjs`
+- `.codex/hooks.json`
+- `.claude/settings.json`
+
+Those hooks call `npx -y react-frontend-standard@latest sync .` when Codex or
+Claude Code sessions start, so downstream projects can keep the installed skill
+and generated standard assets current without manual checks.
 
 ## What This Repo Shape Is For
 
@@ -73,7 +116,11 @@ react-frontend-standard/
 |           |-- adoption-checklist.md
 |           |-- agents-snippet.md
 |           |-- architecture-template.md
-|           `-- coding-patterns-template.md
+|           |-- coding-patterns-template.md
+|           |-- data-boundary-notes.md
+|           |-- document-sync-checklist.md
+|           |-- routing-framework-notes.md
+|           `-- testing-notes.md
 |-- templates/
 |   |-- AGENTS.md
 |   |-- ARCHITECTURE.md
@@ -91,17 +138,17 @@ react-frontend-standard/
 
 ### New repository
 
-1. Copy `templates/AGENTS.md`, `templates/ARCHITECTURE.md`, and `templates/coding-patterns.md`.
+1. Run `npx react-frontend-standard init .`, adding `--with-skill` and `--with-hooks` when agent support and automatic sync are wanted.
 2. Define initial `features` from backend domains or stable user use cases.
 3. Add thin route-entry `screens`.
-4. Copy `skills/react-frontend-standard/` into the repository's local skills directory if agent support is needed.
+4. Adjust local docs for project-specific commands and exceptions.
 
 ### Existing repository
 
 1. Inspect current route entrypoints and domain folders.
 2. Map code into `screens`, `features`, and shared `components`.
 3. Move raw transport logic into feature `<Feature>.api.ts`, `<Feature>.service.ts`, and feature hooks where helpful.
-4. Document intentional exceptions before large refactors.
+4. Run `npx react-frontend-standard sync .` when a manifest exists, then document intentional exceptions before large refactors.
 
 ## Core Rules
 

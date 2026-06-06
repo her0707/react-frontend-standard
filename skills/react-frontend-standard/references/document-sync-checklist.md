@@ -26,9 +26,13 @@ Use this checklist before trusting, refreshing, or regenerating project docs.
 
 - Generated docs still point to `AGENTS.md`, `ARCHITECTURE.md`, and `docs/coding-patterns.md`.
 - Project skill install still points to `.agents/skills/react-frontend-standard`.
+- Version tracking still points to `.react-frontend-standard/manifest.json`.
+- Optional SessionStart hooks still point to `.react-frontend-standard/hooks/session-start.mjs`.
 - Local docs remain the source of truth when they conflict with reusable references.
 - Repository-only examples are not required to apply the standard after installation.
 
 ## Update Rule
 
 When docs and code disagree, update the smallest affected local document. Do not keep outdated examples or copied text as authoritative.
+
+When `sync` reports `skip modified: <path>`, preserve the local edits unless the project owner explicitly wants the generated version restored with `--overwrite`.

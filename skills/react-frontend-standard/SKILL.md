@@ -24,15 +24,16 @@ Repository-only `examples/` can help maintain this package, but downstream proje
 
 1. Inspect the current repository shape with file search.
 2. Read local docs if present: `AGENTS.md`, `ARCHITECTURE.md`, `docs/coding-patterns.md`, README, and product specs.
-3. Verify local docs against actual files, commands, route entries, providers, and feature folders.
-4. Identify routing framework boundaries using `references/routing-framework-notes.md`.
-5. Map feature ownership from backend domains or stable frontend use cases.
-6. Check data-access and side-effect boundaries using `references/data-boundary-notes.md`.
-7. Check feature-root role filenames; rename role-only files to `<Feature>.<role>.ts`.
-8. Check export style; prefer named exports for reusable modules and reserve default exports for route entries and screens.
-9. Check test placement and verification commands using `references/testing-notes.md`.
-10. Generate or refresh local project documents so the repository contains its own source of truth.
-11. Keep generated docs concise and put detailed reusable reasoning in installed skill references.
+3. If `.react-frontend-standard/manifest.json` exists, use `npx -y react-frontend-standard@latest check .` or `sync .` when the installed standard may be stale.
+4. Verify local docs against actual files, commands, route entries, providers, and feature folders.
+5. Identify routing framework boundaries using `references/routing-framework-notes.md`.
+6. Map feature ownership from backend domains or stable frontend use cases.
+7. Check data-access and side-effect boundaries using `references/data-boundary-notes.md`.
+8. Check feature-root role filenames; rename role-only files to `<Feature>.<role>.ts`.
+9. Check export style; prefer named exports for reusable modules and reserve default exports for route entries and screens.
+10. Check test placement and verification commands using `references/testing-notes.md`.
+11. Generate or refresh local project documents so the repository contains its own source of truth.
+12. Keep generated docs concise and put detailed reusable reasoning in installed skill references.
 
 ## Default Structure
 
