@@ -5,14 +5,15 @@ Use this checklist when installing or applying the React frontend standard.
 ## New Repository
 
 1. Confirm the project is React-based.
-2. Create `AGENTS.md`, `ARCHITECTURE.md`, and `docs/coding-patterns.md`.
+2. Create `AGENTS.md`, `ARCHITECTURE.md`, and `docs/coding-patterns.md` with `npx react-frontend-standard init .`.
 3. Identify the routing framework and mark route files as routing shells.
 4. Decide the initial feature map from backend domains or stable frontend use cases.
 5. Add thin route-facing screens.
 6. Add feature-local `<Feature>.api.ts`, `<Feature>.service.ts`, and hook layers where the project uses explicit transport code.
 7. Add optional feature files only when they clarify a real boundary.
 8. Reject role-only feature-root filenames such as `api.ts`, `schema.ts`, `type.ts`, and `types.ts`.
-9. Record project-specific commands and exceptions in local docs.
+9. Add `--with-skill` and `--with-hooks` when the project should receive the local skill and SessionStart sync hooks.
+10. Record project-specific commands and exceptions in local docs.
 
 ## Existing Repository
 
@@ -24,14 +25,16 @@ Use this checklist when installing or applying the React frontend standard.
 6. Rename role-only feature-root files to `<Feature>.<role>.ts` unless local docs intentionally define an exception.
 7. Add or clarify optional feature files where current code mixes responsibilities.
 8. Verify tests exist at the layer that owns the behavior.
-9. Refresh project docs after checking actual files and commands.
+9. If `.react-frontend-standard/manifest.json` exists, run `npx -y react-frontend-standard@latest check .` before refreshing docs.
+10. Refresh project docs after checking actual files and commands.
 
 ## Applying To Another Project
 
 1. Read local docs first.
-2. Verify local docs against actual files before relying on them.
-3. Map route files, screens, features, and shared primitives.
-4. Keep features as the ownership center.
-5. Check feature-root role files use `<Feature>.<role>.ts`, not role-only filenames.
-6. Keep generated docs concise and put detailed reusable guidance in the installed skill references.
-7. Avoid adding `widgets` unless repeated cross-feature blocks justify it.
+2. If a manifest exists, run `npx -y react-frontend-standard@latest sync .` when the installed standard is stale.
+3. Verify local docs against actual files before relying on them.
+4. Map route files, screens, features, and shared primitives.
+5. Keep features as the ownership center.
+6. Check feature-root role files use `<Feature>.<role>.ts`, not role-only filenames.
+7. Keep generated docs concise and put detailed reusable guidance in the installed skill references.
+8. Avoid adding `widgets` unless repeated cross-feature blocks justify it.

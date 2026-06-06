@@ -1,6 +1,6 @@
 {
   "name": "react-frontend-standard",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Reusable React frontend standard docs, templates, and local agent skill installer.",
   "type": "module",
   "bin": {
@@ -36,6 +36,7 @@
   },
   "scripts": {
     "start": "node ./bin/react-frontend-standard.js",
-    "init": "node ./bin/react-frontend-standard.js init"
+    "init": "node ./bin/react-frontend-standard.js init",
+    "test": "node --test"
   }
 }
