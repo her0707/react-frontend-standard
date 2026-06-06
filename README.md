@@ -56,6 +56,7 @@ This directory packages the standards discussed in this project into a reusable 
 - shared generic `components`
 - REST-friendly `<Feature>.api.ts -> <Feature>.service.ts -> hook -> component -> screen` layering
 - feature-root role files named as `<Feature>.<role>.ts`
+- named exports for reusable modules, with default exports reserved for route-facing entries
 - optional, not default, `widgets`
 
 ## Structure
@@ -108,6 +109,7 @@ react-frontend-standard/
 - `features` are the ownership center.
 - feature-root role files use `<Feature>.<role>.ts`, not role-only names such as `api.ts`, `schema.ts`, `type.ts`, or `types.ts`.
 - `components` are shared generic UI primitives.
+- reusable modules use named exports; route files and screens may use default exports.
 - `widgets` are optional and only introduced for repeated, meaningful, cross-feature UI blocks.
 
 ## Source

@@ -105,9 +105,33 @@ The standard does not choose localStorage, IndexedDB, cookies, or any other back
 - event handlers: `on...`
 - booleans: `is...`, `has...`, `should...`, `can...`
 
+## Export Defaults
+
+Prefer named exports for reusable modules:
+
+- feature components in `features/<feature>/components`
+- shared generic components in `components`
+- hooks, services, utilities, schemas, stores, adapters, and query helpers
+
+Use default exports only for files that are naturally a single route-facing entry:
+
+- framework-required route files such as Next.js `page.tsx`, `layout.tsx`, `loading.tsx`, or `error.tsx`
+- route modules when the framework expects a default export
+- screen files in `screens`
+
+Keep exported names aligned with file and component names. Do not use default exports to import the same component under different names across the codebase.
+
+Example reusable component:
+
+```tsx
+export const ReservationSearchForm = () => {
+  return <form>{/* ... */}</form>;
+};
+```
+
 ## Screen Pattern
 
-Screens should stay thin.
+Screens should stay thin. They may use default exports because each screen is a single route-facing entry.
 
 Example:
 
