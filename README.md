@@ -54,7 +54,8 @@ This directory packages the standards discussed in this project into a reusable 
 - thin route-entry `screens`
 - feature-centered ownership
 - shared generic `components`
-- REST-friendly `api -> service -> hook -> component -> screen` layering
+- REST-friendly `<Feature>.api.ts -> <Feature>.service.ts -> hook -> component -> screen` layering
+- feature-root role files named as `<Feature>.<role>.ts`
 - optional, not default, `widgets`
 
 ## Structure
@@ -98,13 +99,14 @@ react-frontend-standard/
 
 1. Inspect current route entrypoints and domain folders.
 2. Map code into `screens`, `features`, and shared `components`.
-3. Move raw transport logic into feature `*.api.ts`, `*.service.ts`, and feature hooks where helpful.
+3. Move raw transport logic into feature `<Feature>.api.ts`, `<Feature>.service.ts`, and feature hooks where helpful.
 4. Document intentional exceptions before large refactors.
 
 ## Core Rules
 
 - `screens` are route-entry components only.
 - `features` are the ownership center.
+- feature-root role files use `<Feature>.<role>.ts`, not role-only names such as `api.ts`, `schema.ts`, `type.ts`, or `types.ts`.
 - `components` are shared generic UI primitives.
 - `widgets` are optional and only introduced for repeated, meaningful, cross-feature UI blocks.
 

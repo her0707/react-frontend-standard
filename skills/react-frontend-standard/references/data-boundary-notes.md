@@ -12,6 +12,9 @@ Use these notes when a project needs guidance beyond the baseline `api -> servic
 
 Keep raw transport details out of route files, screens, and feature components.
 
+Data boundary files in a feature root must use feature-prefixed names such as `Feature.api.ts`, `Feature.service.ts`, `Feature.query.ts`, `Feature.server.ts`, and `Feature.client.ts`.
+Do not use role-only names such as `api.ts`, `service.ts`, `query.ts`, `server.ts`, or `client.ts`.
+
 ## Optional Boundaries
 
 | File | Use when | Owns | Avoids |

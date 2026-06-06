@@ -14,6 +14,7 @@ Use this skill to apply the same React frontend structure and coding rules acros
 - `screens` are route-facing UI composition.
 - shared `components` are generic and domain-free.
 - optional feature files appear only when they clarify a real boundary.
+- feature-root role files use `<Feature>.<role>.ts`; role-only names such as `api.ts`, `schema.ts`, `type.ts`, and `types.ts` are not part of this standard.
 - local project docs win over reusable references when they conflict.
 
 Repository-only `examples/` can help maintain this package, but downstream projects must be able to apply the standard from installed docs and installed skill references alone.
@@ -26,9 +27,10 @@ Repository-only `examples/` can help maintain this package, but downstream proje
 4. Identify routing framework boundaries using `references/routing-framework-notes.md`.
 5. Map feature ownership from backend domains or stable frontend use cases.
 6. Check data-access and side-effect boundaries using `references/data-boundary-notes.md`.
-7. Check test placement and verification commands using `references/testing-notes.md`.
-8. Generate or refresh local project documents so the repository contains its own source of truth.
-9. Keep generated docs concise and put detailed reusable reasoning in installed skill references.
+7. Check feature-root role filenames; rename role-only files to `<Feature>.<role>.ts`.
+8. Check test placement and verification commands using `references/testing-notes.md`.
+9. Generate or refresh local project documents so the repository contains its own source of truth.
+10. Keep generated docs concise and put detailed reusable reasoning in installed skill references.
 
 ## Default Structure
 
@@ -68,17 +70,19 @@ Optional additions by project needs:
 - `<Feature>.adapter.ts`
 - `<Feature>.fragment.ts`
 
+Do not use role-only feature-root filenames such as `api.ts`, `service.ts`, `schema.ts`, `type.ts`, `types.ts`, `query.ts`, `server.ts`, `client.ts`, `store.ts`, or `adapter.ts`.
+
 ## Ownership Rules
 
 - framework route files connect params, metadata, providers, framework prefetching, and screens
 - route-facing screen components go in `screens`
 - business-owned UI goes in `features/<feature>/components`
-- raw HTTP and transport details go in `*.api.ts`
-- use-case orchestration goes in `*.service.ts`
-- cache/query identity can go in `*.query.ts`
-- server-only feature access can go in `*.server.ts`
-- browser/client feature access can go in `*.client.ts`
-- browser-only state and side effects can go in `*.store.ts` or `*.adapter.ts`
+- raw HTTP and transport details go in `<Feature>.api.ts`
+- use-case orchestration goes in `<Feature>.service.ts`
+- cache/query identity can go in `<Feature>.query.ts`
+- server-only feature access can go in `<Feature>.server.ts`
+- browser/client feature access can go in `<Feature>.client.ts`
+- browser-only state and side effects can go in `<Feature>.store.ts` or `<Feature>.adapter.ts`
 - screen-facing state connection goes in feature `hooks/`
 - generic reusable UI goes in `components`
 

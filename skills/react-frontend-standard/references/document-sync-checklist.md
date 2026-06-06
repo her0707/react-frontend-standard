@@ -19,6 +19,7 @@ Use this checklist before trusting, refreshing, or regenerating project docs.
 - Route entry descriptions match the actual routing framework.
 - Screen files listed in docs are still route-facing composition files.
 - Feature names in docs match `src/features`.
+- Feature-root role files use `<Feature>.<role>.ts`; role-only filenames such as `api.ts`, `schema.ts`, `type.ts`, and `types.ts` are renamed or documented as intentional local exceptions.
 - Shared component paths in docs do not describe feature-owned UI as generic primitives.
 
 ## Standard Contract
