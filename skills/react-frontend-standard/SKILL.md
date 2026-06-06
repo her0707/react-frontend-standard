@@ -15,6 +15,7 @@ Use this skill to apply the same React frontend structure and coding rules acros
 - shared `components` are generic and domain-free.
 - optional feature files appear only when they clarify a real boundary.
 - feature-root role files use `<Feature>.<role>.ts`; role-only names such as `api.ts`, `schema.ts`, `type.ts`, and `types.ts` are not part of this standard.
+- reusable modules use named exports by default; framework route entries and route-facing screens may use default exports when they are single-entry files.
 - local project docs win over reusable references when they conflict.
 
 Repository-only `examples/` can help maintain this package, but downstream projects must be able to apply the standard from installed docs and installed skill references alone.
@@ -28,9 +29,10 @@ Repository-only `examples/` can help maintain this package, but downstream proje
 5. Map feature ownership from backend domains or stable frontend use cases.
 6. Check data-access and side-effect boundaries using `references/data-boundary-notes.md`.
 7. Check feature-root role filenames; rename role-only files to `<Feature>.<role>.ts`.
-8. Check test placement and verification commands using `references/testing-notes.md`.
-9. Generate or refresh local project documents so the repository contains its own source of truth.
-10. Keep generated docs concise and put detailed reusable reasoning in installed skill references.
+8. Check export style; prefer named exports for reusable modules and reserve default exports for route entries and screens.
+9. Check test placement and verification commands using `references/testing-notes.md`.
+10. Generate or refresh local project documents so the repository contains its own source of truth.
+11. Keep generated docs concise and put detailed reusable reasoning in installed skill references.
 
 ## Default Structure
 
@@ -85,6 +87,8 @@ Do not use role-only feature-root filenames such as `api.ts`, `service.ts`, `sch
 - browser-only state and side effects can go in `<Feature>.store.ts` or `<Feature>.adapter.ts`
 - screen-facing state connection goes in feature `hooks/`
 - generic reusable UI goes in `components`
+- reusable components, hooks, services, utilities, schemas, stores, adapters, and query helpers use named exports by default
+- framework route entries and screen files may use default exports when the file represents one route-facing entry
 
 ## Widget Rule
 

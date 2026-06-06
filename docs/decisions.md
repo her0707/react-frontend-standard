@@ -19,3 +19,7 @@ REST projects usually need explicit transport code, orchestration, and screen-fa
 ## Why feature files repeat the feature name
 
 Feature-root support files use names such as `Reservation.api.ts` instead of role-only names such as `api.ts`. Repeating the feature name keeps imports, editor tabs, search results, and agent refactors clear even when many feature folders contain the same roles.
+
+## Why exports are mostly named
+
+Reusable modules use named exports by default because stable import names make search, editor tabs, automated imports, and agent refactors more predictable. Default exports are still acceptable for framework route files and route-facing screens because those files act as single entry points.
