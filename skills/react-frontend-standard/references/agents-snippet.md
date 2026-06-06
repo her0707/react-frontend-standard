@@ -3,23 +3,23 @@
 ```md
 ## Shared React Frontend Standard
 
-This repository uses local project documents together with the optional local skill `react-frontend-standard`.
+This repository uses the local `react-frontend-standard` skill as the reusable frontend standard.
 
 ## Read First
 
-1. `ARCHITECTURE.md`: structure, ownership, routing boundaries, and layer rules
-2. `docs/coding-patterns.md`: coding defaults, file responsibilities, and verification expectations
-3. project-specific requirement docs, product specs, or README files when present
+1. `README.md`, product specs, and project-specific docs when present
+2. `.agents/skills/react-frontend-standard/SKILL.md` for the reusable frontend standard
+3. `ARCHITECTURE.md` or `docs/coding-patterns.md` only when this project intentionally keeps local notes there
 
 ## How To Use The Standard
 
-- Use local project documents for normal feature work.
-- Use `react-frontend-standard` when bootstrapping a React repository, aligning an existing structure, reviewing code placement, or refreshing standard documents.
-- If `.react-frontend-standard/manifest.json` exists, use `npx -y react-frontend-standard@latest check .` to check standard drift and `npx -y react-frontend-standard@latest sync .` to refresh safely.
-- If the reusable standard and local project docs conflict, local project docs win.
-- Before relying on this map, verify that referenced files, commands, route entries, provider files, and feature folders still exist.
+- Use the installed skill when bootstrapping, aligning structure, reviewing code placement, or refreshing frontend standards.
+- Use local docs for project-specific facts: commands, package manager, routing setup, feature map, and intentional exceptions.
+- If `.react-frontend-standard/manifest.json` exists, use `npx -y react-frontend-standard@latest check .` to check standard drift and `npx -y react-frontend-standard@latest sync .` to refresh the installed skill and managed assets safely.
+- If local docs conflict with the reusable skill, treat local docs as project-specific exceptions.
+- Before relying on project notes, verify that referenced files, commands, route entries, provider files, and feature folders still exist.
 
 ## Maintenance Rule
 
-Keep this file short. Put structural rules in `ARCHITECTURE.md`, coding rules in `docs/coding-patterns.md`, and detailed reusable guidance in the installed `react-frontend-standard` skill references.
+Keep this file short. Do not duplicate the reusable standard here; put durable standard guidance in the installed `react-frontend-standard` skill and project-specific exceptions in local docs.
 ```

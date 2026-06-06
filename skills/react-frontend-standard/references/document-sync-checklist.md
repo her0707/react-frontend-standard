@@ -5,7 +5,7 @@ Use this checklist before trusting, refreshing, or regenerating project docs.
 ## File Existence
 
 - Every path mentioned in `AGENTS.md` exists or is intentionally described as optional.
-- `ARCHITECTURE.md` and `docs/coding-patterns.md` exist when the standard has been installed.
+- `ARCHITECTURE.md` and `docs/coding-patterns.md` exist only when optional docs were installed or the project intentionally keeps local notes there.
 - Provider, route, screen, feature, and shared component paths named in docs match actual files.
 
 ## Command Accuracy
@@ -24,11 +24,12 @@ Use this checklist before trusting, refreshing, or regenerating project docs.
 
 ## Standard Contract
 
-- Generated docs still point to `AGENTS.md`, `ARCHITECTURE.md`, and `docs/coding-patterns.md`.
+- Generated `AGENTS.md` still points to the installed `react-frontend-standard` skill as the reusable standard source.
+- Optional generated docs remain project note scaffolds, not a duplicate authoritative copy of the reusable standard.
 - Project skill install still points to `.agents/skills/react-frontend-standard`.
 - Version tracking still points to `.react-frontend-standard/manifest.json`.
 - Optional SessionStart hooks still point to `.react-frontend-standard/hooks/session-start.mjs`.
-- Local docs remain the source of truth when they conflict with reusable references.
+- Local docs remain the source of truth for project-specific facts and intentional exceptions.
 - Repository-only examples are not required to apply the standard after installation.
 
 ## Update Rule

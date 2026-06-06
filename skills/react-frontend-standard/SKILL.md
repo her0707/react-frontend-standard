@@ -1,6 +1,6 @@
 ---
 name: react-frontend-standard
-description: Shared architecture and coding standard for React frontend repositories centered on thin route-facing screens, feature ownership, and shared UI primitives. Use when Codex needs to scaffold a new React frontend project, align an existing repository to a consistent structure, generate or refresh AGENTS.md / ARCHITECTURE.md / coding patterns documents, or review whether code is placed in the right layer. Treat routing frameworks and data access technology such as React Router, Next.js, Remix, TanStack Router, REST, GraphQL, React Query, Apollo, SWR, server actions, route loaders, and generated clients as implementation details rather than the architectural center.
+description: Shared architecture and coding standard for React frontend repositories centered on thin route-facing screens, feature ownership, and shared UI primitives. Use when Codex needs to scaffold a new React frontend project, align an existing repository to a consistent structure, install or refresh the local standard skill, create a thin AGENTS.md router, optionally generate starter architecture/coding-pattern documents, or review whether code is placed in the right layer. Treat routing frameworks and data access technology such as React Router, Next.js, Remix, TanStack Router, REST, GraphQL, React Query, Apollo, SWR, server actions, route loaders, and generated clients as implementation details rather than the architectural center.
 ---
 
 # React Frontend Standard
@@ -16,24 +16,25 @@ Use this skill to apply the same React frontend structure and coding rules acros
 - optional feature files appear only when they clarify a real boundary.
 - feature-root role files use `<Feature>.<role>.ts`; role-only names such as `api.ts`, `schema.ts`, `type.ts`, and `types.ts` are not part of this standard.
 - reusable modules use named exports by default; framework route entries and route-facing screens may use default exports when they are single-entry files.
-- local project docs win over reusable references when they conflict.
+- local project docs describe project-specific facts and intentional exceptions.
+- this installed skill is the reusable standard source of truth.
 
-Repository-only `examples/` can help maintain this package, but downstream projects must be able to apply the standard from installed docs and installed skill references alone.
+Repository-only `examples/` can help maintain this package, but downstream projects must be able to apply the standard from the installed skill and thin `AGENTS.md` router alone. Optional generated docs are scaffolds for project notes, not a second copy of the standard.
 
 ## Workflow
 
 1. Inspect the current repository shape with file search.
-2. Read local docs if present: `AGENTS.md`, `ARCHITECTURE.md`, `docs/coding-patterns.md`, README, and product specs.
+2. Read local docs if present: `AGENTS.md`, README, product specs, and project-specific notes.
 3. If `.react-frontend-standard/manifest.json` exists, use `npx -y react-frontend-standard@latest check .` or `sync .` when the installed standard may be stale.
-4. Verify local docs against actual files, commands, route entries, providers, and feature folders.
-5. Identify routing framework boundaries using `references/routing-framework-notes.md`.
-6. Map feature ownership from backend domains or stable frontend use cases.
-7. Check data-access and side-effect boundaries using `references/data-boundary-notes.md`.
-8. Check feature-root role filenames; rename role-only files to `<Feature>.<role>.ts`.
-9. Check export style; prefer named exports for reusable modules and reserve default exports for route entries and screens.
-10. Check test placement and verification commands using `references/testing-notes.md`.
-11. Generate or refresh local project documents so the repository contains its own source of truth.
-12. Keep generated docs concise and put detailed reusable reasoning in installed skill references.
+4. Treat `ARCHITECTURE.md` and `docs/coding-patterns.md` as optional project notes when they exist, not as newer copies of this reusable standard.
+5. Verify local docs against actual files, commands, route entries, providers, and feature folders.
+6. Identify routing framework boundaries using `references/routing-framework-notes.md`.
+7. Map feature ownership from backend domains or stable frontend use cases.
+8. Check data-access and side-effect boundaries using `references/data-boundary-notes.md`.
+9. Check feature-root role filenames; rename role-only files to `<Feature>.<role>.ts`.
+10. Check export style; prefer named exports for reusable modules and reserve default exports for route entries and screens.
+11. Check test placement and verification commands using `references/testing-notes.md`.
+12. Record only project-specific commands, routing setup, feature map, and intentional exceptions in local docs.
 
 ## Default Structure
 

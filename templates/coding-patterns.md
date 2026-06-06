@@ -115,7 +115,7 @@ Prefer named exports for reusable modules:
 
 Use default exports only for files that are naturally a single route-facing entry:
 
-- framework-required route files such as Next.js `page.tsx`, `layout.tsx`, `loading.tsx`, or `error.tsx`
+- framework-required route files such as page files, route modules, layouts, loaders, or route config entries
 - route modules when the framework expects a default export
 - screen files in `screens`
 

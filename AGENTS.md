@@ -15,11 +15,14 @@ aligned projects and should not be treated as the same contract.
 
 - `bin/`
   - CLI entrypoint and copy/install behavior.
-  - `bin/react-frontend-standard.js` copies `templates/AGENTS.md`,
-    `templates/ARCHITECTURE.md`, and `templates/coding-patterns.md` into target
-    repositories, and can also install `skills/react-frontend-standard/`.
+  - `bin/react-frontend-standard.js` installs a thin downstream `AGENTS.md`
+    router, writes `.react-frontend-standard/manifest.json`, can install
+    `skills/react-frontend-standard/`, can install SessionStart hooks, and only
+    copies `templates/ARCHITECTURE.md` plus `templates/coding-patterns.md` when
+    optional docs are requested.
 - `templates/`
-  - Downstream source templates for generated project docs.
+  - Downstream source templates for the generated `AGENTS.md` router and optional
+    project docs scaffold.
   - Changes here affect what target repositories receive.
 - `skills/react-frontend-standard/`
   - Reusable local skill and reference material for applying this frontend standard
@@ -55,8 +58,12 @@ local skill is installed.
 Before accepting contract-sensitive changes, verify:
 - copied destinations remain correct:
   - `AGENTS.md`
-  - `ARCHITECTURE.md`
-  - `docs/coding-patterns.md`
+  - optional `ARCHITECTURE.md`
+  - optional `docs/coding-patterns.md`
+  - `.react-frontend-standard/manifest.json`
+  - optional `.react-frontend-standard/hooks/session-start.mjs`
+  - optional `.codex/hooks.json`
+  - optional `.claude/settings.json`
 - target paths remain correct
 - project install behavior remains correct:
   - `.agents/skills/react-frontend-standard`

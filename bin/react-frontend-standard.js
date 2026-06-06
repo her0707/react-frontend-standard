@@ -21,13 +21,14 @@ const manifestFileName = "manifest.json";
 const packageName = packageJson.name;
 const packageVersion = packageJson.version;
 
-const templateSpecs = [
-  {
-    path: "AGENTS.md",
-    kind: "template",
-    source: "templates/AGENTS.md",
-    sourcePath: path.join(packageRoot, "templates", "AGENTS.md"),
-  },
+const agentsTemplateSpec = {
+  path: "AGENTS.md",
+  kind: "agent-router",
+  source: "templates/AGENTS.md",
+  sourcePath: path.join(packageRoot, "templates", "AGENTS.md"),
+};
+
+const docTemplateSpecs = [
   {
     path: "ARCHITECTURE.md",
     kind: "template",
@@ -309,7 +310,8 @@ const claudeSettingsJson = () =>
     2,
   )}\n`;
 
-const managedFilesFor = ({ installSkill, installHooks }) => {
+const managedFilesFor = ({ installSkill, installHooks, installDocs }) => {
+  const templateSpecs = installDocs ? [agentsTemplateSpec, ...docTemplateSpecs] : [agentsTemplateSpec];
   const managedFiles = templateSpecs.map(spec => ({
     path: spec.path,
     kind: spec.kind,
@@ -362,7 +364,7 @@ const managedFilesFor = ({ installSkill, installHooks }) => {
   return managedFiles;
 };
 
-const writeManifest = ({ targetRoot, installSkill, installHooks }) => {
+const writeManifest = ({ targetRoot, installSkill, installHooks, installDocs }) => {
   const previousManifest = readManifest(targetRoot);
   const now = new Date().toISOString();
 
@@ -374,16 +376,18 @@ const writeManifest = ({ targetRoot, installSkill, installHooks }) => {
     updatedAt: now,
     installSkill,
     installHooks,
-    managedFiles: managedFilesFor({ installSkill, installHooks }),
+    installDocs,
+    managedFiles: managedFilesFor({ installSkill, installHooks, installDocs }),
   });
 };
 
 const parseInstallSkill = (cliArgs, fallback = "none") => {
   const wantsProjectSkill = cliArgs.includes("--with-skill");
   const wantsUserSkill = cliArgs.includes("--with-user-skill");
+  const wantsNoSkill = cliArgs.includes("--without-skill");
 
-  if (wantsProjectSkill && wantsUserSkill) {
-    throw new Error("Choose either --with-skill or --with-user-skill, not both.");
+  if ([wantsProjectSkill, wantsUserSkill, wantsNoSkill].filter(Boolean).length > 1) {
+    throw new Error("Choose only one skill install mode.");
   }
 
   if (wantsProjectSkill) {
@@ -392,6 +396,10 @@ const parseInstallSkill = (cliArgs, fallback = "none") => {
 
   if (wantsUserSkill) {
     return "user";
+  }
+
+  if (wantsNoSkill) {
+    return "none";
   }
 
   return fallback;
@@ -409,6 +417,18 @@ const parseInstallHooks = (cliArgs, fallback = false) => {
   return fallback;
 };
 
+const parseInstallDocs = (cliArgs, fallback = false) => {
+  if (cliArgs.includes("--with-docs")) {
+    return true;
+  }
+
+  if (cliArgs.includes("--without-docs")) {
+    return false;
+  }
+
+  return fallback;
+};
+
 const targetArgFrom = cliArgs => cliArgs.find(arg => !arg.startsWith("--")) ?? ".";
 
 const installHookFiles = ({ targetRoot, overwriteMode }) => {
@@ -417,32 +437,40 @@ const installHookFiles = ({ targetRoot, overwriteMode }) => {
   writeGeneratedTextByMode(claudeSettingsJson(), path.join(targetRoot, claudeSettingsPath), overwriteMode);
 };
 
-const initProject = ({ targetRoot, overwriteMode = "skip", installSkill = "none", installHooks = false }) => {
+const initProject = ({
+  targetRoot,
+  overwriteMode = "skip",
+  installSkill = "none",
+  installHooks = false,
+  installDocs = false,
+}) => {
   ensureDir(targetRoot);
+
+  const templateSpecs = installDocs ? [agentsTemplateSpec, ...docTemplateSpecs] : [agentsTemplateSpec];
 
   for (const spec of templateSpecs) {
     writeFileByMode(spec.sourcePath, path.join(targetRoot, spec.path), overwriteMode);
   }
 
   if (installSkill === "project") {
-    copySkillByMode(skillSourcePath, path.join(targetRoot, projectSkillPath), overwriteMode);
+    copySkillByMode(skillSourcePath, path.join(targetRoot, projectSkillPath), "overwrite");
   }
 
   if (installSkill === "user") {
-    copySkillByMode(skillSourcePath, resolveUserSkillPath(), overwriteMode);
+    copySkillByMode(skillSourcePath, resolveUserSkillPath(), "overwrite");
   }
 
   if (installHooks) {
     installHookFiles({ targetRoot, overwriteMode });
   }
 
-  writeManifest({ targetRoot, installSkill, installHooks });
+  writeManifest({ targetRoot, installSkill, installHooks, installDocs });
 
   console.log("");
   console.log("next:");
-  console.log("1. define initial feature folders from backend domains or stable use cases");
-  console.log("2. add thin route-entry screens");
-  console.log("3. adjust local docs for the actual project");
+  console.log("1. use the installed skill as the reusable frontend standard");
+  console.log("2. document project-specific commands, router setup, and exceptions locally");
+  console.log("3. add optional generated docs with --with-docs when a project wants a starting scaffold");
 };
 
 const compareVersions = (left, right) => {
@@ -564,7 +592,7 @@ const syncSkill = ({ targetRoot, installSkill }) => {
   }
 };
 
-const syncProject = ({ targetRoot, overwriteMode, installSkill, installHooks }) => {
+const syncProject = ({ targetRoot, overwriteMode, installSkill, installHooks, installDocs }) => {
   const manifest = readManifest(targetRoot);
 
   if (!manifest) {
@@ -581,12 +609,15 @@ const syncProject = ({ targetRoot, overwriteMode, installSkill, installHooks }) 
     overwriteMode === "overwrite" ||
     compareVersions(manifest.version, packageVersion) < 0 ||
     installSkill !== manifest.installSkill ||
-    installHooks !== Boolean(manifest.installHooks);
+    installHooks !== Boolean(manifest.installHooks) ||
+    installDocs !== Boolean(manifest.installDocs);
 
   if (!shouldSync) {
     console.log(`up to date: ${packageName} ${manifest.version}`);
     return 0;
   }
+
+  const templateSpecs = installDocs ? [agentsTemplateSpec, ...docTemplateSpecs] : [agentsTemplateSpec];
 
   for (const spec of templateSpecs) {
     syncFileFromSource({
@@ -623,7 +654,7 @@ const syncProject = ({ targetRoot, overwriteMode, installSkill, installHooks }) 
     });
   }
 
-  writeManifest({ targetRoot, installSkill, installHooks });
+  writeManifest({ targetRoot, installSkill, installHooks, installDocs });
   console.log(`synced: ${packageName} ${manifest.version} -> ${packageVersion}`);
   return 0;
 };
@@ -634,26 +665,27 @@ react-frontend-standard
 
 Usage:
   react-frontend-standard
-  react-frontend-standard init [target-path] [--with-skill] [--with-user-skill] [--with-hooks] [--overwrite]
+  react-frontend-standard init [target-path] [--with-skill] [--with-user-skill] [--without-skill] [--with-hooks] [--with-docs] [--overwrite]
   react-frontend-standard check [target-path]
-  react-frontend-standard sync [target-path] [--with-skill] [--with-user-skill] [--with-hooks] [--without-hooks] [--overwrite]
+  react-frontend-standard sync [target-path] [--with-skill] [--with-user-skill] [--with-hooks] [--without-hooks] [--with-docs] [--without-docs] [--overwrite]
   react-frontend-standard help
 
 Examples:
   react-frontend-standard
   react-frontend-standard init .
-  react-frontend-standard init ./my-app --with-skill --with-hooks
+  react-frontend-standard init ./my-app --with-hooks
+  react-frontend-standard init ./my-app --with-docs
   react-frontend-standard init . --with-user-skill
+  react-frontend-standard init . --without-skill
   react-frontend-standard sync .
   react-frontend-standard check .
 
 What it creates:
-  - AGENTS.md
-  - ARCHITECTURE.md
-  - docs/coding-patterns.md
+  - AGENTS.md as a thin standard router
   - .react-frontend-standard/manifest.json
-  - optional local skill at .agents/skills/react-frontend-standard
+  - local skill at .agents/skills/react-frontend-standard unless --without-skill is used
   - optional Codex and Claude Code SessionStart hooks
+  - optional docs scaffold with ARCHITECTURE.md and docs/coding-patterns.md
 `);
 };
 
@@ -701,9 +733,9 @@ const runWizard = async () => {
     rl,
     title: "Where should the skill be installed?",
     options: [
-      { label: "Do not install the skill", value: "none" },
       { label: "Install into this project (.agents/skills)", value: "project" },
       { label: "Install into my user environment", value: "user" },
+      { label: "Do not install the skill", value: "none" },
     ],
   });
 
@@ -713,6 +745,15 @@ const runWizard = async () => {
     options: [
       { label: "Do not install hooks", value: false },
       { label: "Install Codex and Claude Code hooks", value: true },
+    ],
+  });
+
+  const installDocs = await askChoice({
+    rl,
+    title: "Should optional architecture and coding docs be generated?",
+    options: [
+      { label: "Do not generate optional docs", value: false },
+      { label: "Generate ARCHITECTURE.md and docs/coding-patterns.md", value: true },
     ],
   });
 
@@ -730,6 +771,7 @@ const runWizard = async () => {
   console.log(`- target: ${targetRoot}`);
   console.log(`- install skill: ${installSkill}`);
   console.log(`- install hooks: ${installHooks}`);
+  console.log(`- install docs: ${installDocs}`);
   console.log(`- existing files: ${overwriteMode}`);
 
   const confirm = await ask("Proceed? (y/N): ");
@@ -739,7 +781,7 @@ const runWizard = async () => {
     process.exit(0);
   }
 
-  initProject({ targetRoot, overwriteMode, installSkill, installHooks });
+  initProject({ targetRoot, overwriteMode, installSkill, installHooks, installDocs });
   rl.close();
 };
 
@@ -751,14 +793,16 @@ try {
 
   if (command === "init") {
     const targetRoot = path.resolve(process.cwd(), targetArgFrom(args));
-    const installSkill = parseInstallSkill(args);
+    const installSkill = parseInstallSkill(args, "project");
     const installHooks = parseInstallHooks(args);
+    const installDocs = parseInstallDocs(args);
 
     initProject({
       targetRoot,
       overwriteMode: args.includes("--overwrite") ? "overwrite" : "skip",
       installSkill,
       installHooks,
+      installDocs,
     });
     process.exit(0);
   }
@@ -773,6 +817,7 @@ try {
     const manifest = readManifest(targetRoot);
     const installSkill = parseInstallSkill(args, manifest?.installSkill ?? "none");
     const installHooks = parseInstallHooks(args, Boolean(manifest?.installHooks));
+    const installDocs = parseInstallDocs(args, Boolean(manifest?.installDocs));
 
     process.exit(
       syncProject({
@@ -780,6 +825,7 @@ try {
         overwriteMode: args.includes("--overwrite") ? "overwrite" : "safe",
         installSkill,
         installHooks,
+        installDocs,
       }),
     );
   }
