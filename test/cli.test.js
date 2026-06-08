@@ -33,7 +33,7 @@ const assertSuccessful = result => {
 test("package exposes the next minor version", () => {
   const packageJson = readJson(packageJsonPath);
 
-  assert.equal(packageJson.version, "0.6.0");
+  assert.equal(packageJson.version, "0.7.0");
 });
 
 test("init --with-skill --with-hooks writes skill-first manifest and session hook files", () => {
@@ -140,12 +140,12 @@ test("check reports outdated installed standard", () => {
 
   const result = runCli(["check", targetRoot], {
     env: {
-      RFS_NPM_LATEST_VERSION: "0.6.0",
+      RFS_NPM_LATEST_VERSION: "0.7.0",
     },
   });
 
   assert.equal(result.status, 1, `${result.stdout}\n${result.stderr}`);
-  assert.match(result.stdout, /outdated: react-frontend-standard 0\.5\.0 -> 0\.6\.0/);
+  assert.match(result.stdout, /outdated: react-frontend-standard 0\.5\.0 -> 0\.7\.0/);
 });
 
 test("sync refreshes generated skill and preserves modified docs", () => {
