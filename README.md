@@ -109,6 +109,7 @@ This directory packages the standards discussed in this project into a reusable 
 - REST-friendly `<Feature>.api.ts -> <Feature>.service.ts -> hook -> component -> screen` layering
 - feature-root role files named as `<Feature>.<role>.ts`
 - named exports for reusable modules, with default exports reserved for route-facing entries
+- router-config projects such as React Router route to screens directly unless a thin route shell is needed
 - optional, not default, `widgets`
 
 ## Structure
@@ -150,8 +151,9 @@ react-frontend-standard/
 1. Run `npx react-frontend-standard init . --with-hooks` so the project receives the local skill, thin `AGENTS.md` router, manifest, and update hooks.
 2. Define initial `features` from backend domains or stable user use cases.
 3. Add thin route-entry `screens`.
-4. Add `--with-docs` only when the project wants starter `ARCHITECTURE.md` and `docs/coding-patterns.md` scaffolds.
-5. Record project-specific commands, routing setup, and exceptions in local docs.
+4. In router-config projects such as React Router, point routes at screens directly unless a thin route shell is actually needed.
+5. Add `--with-docs` only when the project wants starter `ARCHITECTURE.md` and `docs/coding-patterns.md` scaffolds.
+6. Record project-specific commands, routing setup, and exceptions in local docs.
 
 ### Existing repository
 
@@ -165,6 +167,8 @@ react-frontend-standard/
 ## Core Rules
 
 - `screens` are route-entry components only.
+- `pages`, `app`, `routes`, and route modules are routing shells, not a parallel page-composition layer.
+- React Router-style route config should usually render `screens` directly.
 - `features` are the ownership center.
 - feature-root role files use `<Feature>.<role>.ts`, not role-only names such as `api.ts`, `schema.ts`, `type.ts`, or `types.ts`.
 - `components` are shared generic UI primitives.

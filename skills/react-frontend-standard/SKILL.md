@@ -12,6 +12,8 @@ Use this skill to apply the same React frontend structure and coding rules acros
 - `features` are the ownership center.
 - framework route files are routing shells.
 - `screens` are route-facing UI composition.
+- router-config projects such as React Router should route to screens directly unless a thin route shell is needed.
+- `pages` must not become a parallel page-composition layer beside `screens`.
 - shared `components` are generic and domain-free.
 - optional feature files appear only when they clarify a real boundary.
 - feature-root role files use `<Feature>.<role>.ts`; role-only names such as `api.ts`, `schema.ts`, `type.ts`, and `types.ts` are not part of this standard.
@@ -50,7 +52,7 @@ src/
 `-- types/
 ```
 
-Framework route directories such as `src/app`, `src/pages`, route modules, or router config files may exist alongside this structure. Treat them as routing shells.
+Framework route directories such as `src/app`, `src/pages`, route modules, or router config files may exist alongside this structure. Treat them as routing shells. In router-config projects such as React Router or TanStack Router, prefer route entries that render `src/screens/*Screen.tsx` directly unless a thin route shell is needed for params, metadata, providers, loaders, actions, or another routing boundary.
 
 ## Feature Structure
 
@@ -80,6 +82,7 @@ Do not use role-only feature-root filenames such as `api.ts`, `service.ts`, `sch
 
 - framework route files connect params, metadata, providers, framework prefetching, and screens
 - route-facing screen components go in `screens`
+- React Router-style route config usually renders screens directly instead of adding `pages` wrappers
 - business-owned UI goes in `features/<feature>/components`
 - raw HTTP and transport details go in `<Feature>.api.ts`
 - use-case orchestration goes in `<Feature>.service.ts`

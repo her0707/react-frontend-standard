@@ -4,6 +4,10 @@
 
 `screens` maps cleanly to route-entry UI without implying a framework-specific routing system.
 
+## Why route files stay shells
+
+Routing frameworks need different file shapes and config objects. Keep framework route files thin and let them render screens. In router-config projects such as React Router, prefer rendering screens directly unless a thin route shell is needed for params, loaders, providers, or another framework boundary.
+
 ## Why `features` are central
 
 Features track backend domains or stable frontend use cases more consistently than route or layout structure.

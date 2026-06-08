@@ -6,6 +6,8 @@ Use these notes when applying the standard to a project with framework-owned rou
 
 The routing framework is not the architecture center. Route files are shells that connect framework requirements to screen components.
 
+Router-config projects such as React Router or TanStack Router usually do not need a separate `pages` layer. Prefer route entries that render `src/screens/*Screen.tsx` directly unless a thin route shell is needed.
+
 ## Route Files May Own
 
 - route params and search params
@@ -26,8 +28,10 @@ The routing framework is not the architecture center. Route files are shells tha
 
 | Framework shape | Treat as | Preferred delegation |
 |---|---|---|
+| React Router or TanStack Router config entry | route config | render a `src/screens/*Screen.tsx` component directly |
 | `src/app/**/page.tsx` | routing shell | render a `src/screens/*Screen.tsx` component |
 | `src/pages/*.tsx` | routing shell | render a `src/screens/*Screen.tsx` component |
+| `src/pages/*.tsx` in a router-config project | optional routing shell | keep only when it owns real route-shell work; otherwise route directly to the screen |
 | route module with loader/action | routing shell and framework boundary | keep feature logic in feature services or adapters |
 | nested layout route | routing shell or layout integration | keep reusable layout components outside domain features unless one feature owns them |
 
@@ -36,6 +40,7 @@ The routing framework is not the architecture center. Route files are shells tha
 Ask these questions before adding logic to a route file:
 
 - Does the framework require this code to live here?
+- Can this router config render the screen directly?
 - Can this be named as a feature use case?
 - Would this logic be useful without knowing the route path?
 - Can this be unit tested more easily in a feature file?

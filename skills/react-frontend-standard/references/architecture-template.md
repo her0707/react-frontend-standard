@@ -58,7 +58,7 @@ src/
 `-- types/
 ```
 
-Optional top-level directories may exist when the project needs them, for example:
+Optional top-level directories may exist when the project or routing framework needs them, for example:
 
 - `app/`, `pages/`, `routes/`, or framework route modules
 - `layouts/`
@@ -67,9 +67,15 @@ Optional top-level directories may exist when the project needs them, for exampl
 - `tests/` or `e2e/`
 - `__generated__/`
 
+These directories do not become extra UI-composition layers. In particular, `pages` should stay a routing shell when it exists.
+
 ## Routing Framework Boundary
 
 Framework route directories such as `src/app`, `src/pages`, or route modules are routing shells.
+
+Do not create `src/pages` just to mirror route names in router-config projects such as React Router or TanStack Router. Prefer pointing route config entries directly at `src/screens/*Screen.tsx` unless a thin route shell is needed for params, metadata, providers, loaders, actions, or another routing boundary.
+
+When `src/pages` exists, each page file should behave like a route file: do route-shell work and render a screen. It should not compose feature UI itself.
 
 Route files may:
 

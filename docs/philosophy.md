@@ -10,6 +10,7 @@ This standard prefers:
 This standard avoids:
 
 - making `widgets` a default layer
+- creating `pages` as a second page-composition layer beside `screens`
 - placing raw transport logic in screens
 - using role-only feature-root filenames such as `api.ts`, `schema.ts`, `type.ts`, or `types.ts`
 - forcing structure to follow a specific routing or data library

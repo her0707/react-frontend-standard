@@ -19,6 +19,8 @@ This document defines the coding defaults used by this repository.
 
 - framework route files stay thin and delegate UI to screens
 - route-facing top-level components go in `screens`
+- router-config projects such as React Router usually route directly to screens
+- create `pages` only when they are thin routing shells, not parallel page-composition files
 - feature-owned UI goes in `features/<feature>/components`
 - shared generic UI goes in `components`
 - feature-owned screen state and request state go in `features/<feature>/hooks`
@@ -58,7 +60,7 @@ Use the feature-name prefix even when the folder already names the feature. This
 
 | Layer | Responsibility | Put here | Avoid here |
 |---|---|---|---|
-| framework route files | routing shell | params, metadata, framework prefetch, providers, screen rendering | domain-heavy UI, storage details, large mapping |
+| framework route files | routing shell | params, metadata, framework prefetch, providers, screen rendering | page composition, domain-heavy UI, storage details, large mapping |
 | `screens` | route-facing composition | feature composition, page layout order, route-derived props | raw API calls, DTO shaping, large business logic |
 | `features/<feature>/components` | feature-owned UI | forms, lists, detail panels, modals, domain sections | transport setup, generic shared primitive extraction |
 | `features/<feature>/hooks` | screen-facing feature state | loading/error state, mutations, feature form state, derived values | JSX-heavy rendering, generic utilities |
@@ -119,6 +121,8 @@ Use default exports only for files that are naturally a single route-facing entr
 - route modules when the framework expects a default export
 - screen files in `screens`
 
+Do not create default-export page files solely to wrap a screen in a router-config project that can render the screen directly.
+
 Keep exported names aligned with file and component names. Do not use default exports to import the same component under different names across the codebase.
 
 Example reusable component:
@@ -132,6 +136,8 @@ export const ReservationSearchForm = () => {
 ## Screen Pattern
 
 Screens should stay thin. They may use default exports because each screen is a single route-facing entry.
+
+In React Router-style route config, prefer `element: <ReservationSearchScreen />` over adding a `pages/ReservationSearchPage.tsx` wrapper. Add a page wrapper only when it has real route-shell work.
 
 Example:
 
