@@ -18,6 +18,7 @@ Use this skill to apply the same React frontend structure and coding rules acros
 - optional feature files appear only when they clarify a real boundary.
 - feature-root role files use `<Feature>.<role>.ts`; role-only names such as `api.ts`, `schema.ts`, `type.ts`, `types.ts`, `action.ts`, and `actions.ts` are not part of this standard.
 - reusable modules use named exports by default; framework route entries and route-facing screens may use default exports when they are single-entry files.
+- TypeScript/TSX safety rules and existing-file change guardrails live in `references/coding-patterns-template.md`.
 - local project docs describe project-specific facts and intentional exceptions.
 - this installed skill is the reusable standard source of truth.
 
@@ -36,8 +37,9 @@ Repository-only `examples/` can help maintain this package, but downstream proje
 9. Check data-access and side-effect boundaries using `references/data-boundary-notes.md`.
 10. Check feature-root role filenames; rename role-only files to `<Feature>.<role>.ts`.
 11. Check export style; prefer named exports for reusable modules and reserve default exports for route entries and screens.
-12. Check test placement and verification commands using `references/testing-notes.md`.
-13. Record only project-specific commands, routing setup, feature map, and intentional exceptions in local docs.
+12. When writing, refactoring, or reviewing code, check TS/TSX safety rules and existing-file change rules in `references/coding-patterns-template.md`.
+13. Check test placement and verification commands using `references/testing-notes.md`.
+14. Record only project-specific commands, routing setup, feature map, and intentional exceptions in local docs.
 
 ## Default Structure
 

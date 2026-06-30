@@ -17,6 +17,41 @@ This document defines the coding defaults used by this repository.
 4. Add rules only when they solve repeated review problems.
 5. Keep code easy for both humans and agents to read.
 
+## TypeScript And TSX Rules
+
+These rules exist to prevent type holes, runtime surprises, and React rendering bugs.
+Use project-specific docs for preferences that are only stylistic.
+
+- use `.tsx` only for files that contain JSX; use `.ts` for non-JSX TypeScript
+- do not add `any` in handwritten code
+- use `unknown` for unknown external values, then narrow them in schema, guard, parser, or adapter code before use
+- isolate generated code and temporary migration exceptions with a short comment
+- do not use `@ts-ignore` or `@ts-nocheck`
+- if a TypeScript suppression is unavoidable, use `@ts-expect-error` with a reason and keep it next to the smallest affected line
+- avoid non-null assertions such as `value!`
+- prefer guards, early returns, optional chaining, or nullish coalescing before using a non-null assertion
+- use `const` unless reassignment is required; do not use `var`
+- use `import type` for imports used only as types
+- use `??` when a fallback should apply only to `null` or `undefined`; use `||` only when every falsy value should fall back
+- exported async functions and boundary functions in api, service, query, server, client, store, and adapter files should declare return types
+- local implementation details may rely on inference when the inferred type is clear
+- prefer discriminated unions for multi-state async or workflow state
+- do not model mutually exclusive states as several booleans that can contradict each other
+- render list items with stable keys from data; do not generate keys during render
+
+## Function And Component Defaults
+
+These are defaults, not reasons to rewrite unrelated existing code.
+
+- prefer function declarations for exported functions, hooks, services, utilities, and React components when either style works
+- use arrow functions for callbacks, event handlers, array methods, closures, typed function expressions, wrappers, and concise local logic
+- do not use anonymous default exports
+- name a component or function first, then export it
+- component prop types should use `<ComponentName>Props` when the component has named props
+- React components and hooks must not mutate props, state, context, or module-level values during render
+- use effects to synchronize with external systems
+- do not use effects for values that can be calculated during render or for event-specific work
+
 ## Placement Defaults
 
 - framework route files stay thin and delegate UI to screens
@@ -192,6 +227,27 @@ Use this pattern when the project streams server-rendered regions:
 - test API route handlers or transport boundaries where request validation and error mapping matter
 - test browser-only stores with a controlled runtime or test double
 - use end-to-end tests for user flows that cross routing, persistence, and network boundaries
+
+## Existing File Change Rules
+
+Use these rules for feature improvements, bug fixes, and refactors in existing code.
+
+- read the current owner, layer, and local pattern before editing
+- keep behavior changes, mechanical formatting, and broad refactors separate when practical
+- change the smallest owned surface that safely solves the task
+- avoid opportunistic moves, renames, rewrites, or formatting churn outside the touched behavior
+- do not rewrite arrow functions to declarations, declarations to arrows, or export style solely to match defaults when the change is unrelated
+- preserve exported names, route paths, query keys, storage keys, component props, and public import paths unless the contract change is intentional
+- search usages before changing a public contract
+- when a feature improvement exposes a boundary leak, fix the smallest related boundary instead of carrying the leak forward
+- move raw transport logic out of screens and components when the touched code already depends on that transport behavior
+- move browser-only persistence or subscriptions behind a feature store or adapter when the touched rendering code directly owns them
+- do not create a shared abstraction from a single use unless it clarifies an existing boundary
+- promote shared code only after repeated use or clear cross-feature ownership
+- update tests at the layer that owns the changed behavior
+- add a regression test for bug fixes when the behavior can be tested locally
+- for refactors, keep verification focused on proving behavior stayed the same
+- document intentional architectural exceptions in local project docs when they become part of the project contract
 
 ## Extraction Rules
 
