@@ -12,8 +12,8 @@ Use these notes when a project needs guidance beyond the baseline `api -> servic
 
 Keep raw transport details out of route files, screens, and feature components.
 
-Data boundary files in a feature root must use feature-prefixed names such as `Feature.api.ts`, `Feature.service.ts`, `Feature.query.ts`, `Feature.server.ts`, and `Feature.client.ts`.
-Do not use role-only names such as `api.ts`, `service.ts`, `query.ts`, `server.ts`, or `client.ts`.
+Data boundary files in a feature root must use feature-prefixed names such as `Feature.api.ts`, `Feature.service.ts`, `Feature.query.ts`, `Feature.server.ts`, `Feature.client.ts`, and `Feature.action.ts`.
+Do not use role-only names such as `api.ts`, `service.ts`, `query.ts`, `server.ts`, `client.ts`, `action.ts`, or `actions.ts`.
 
 ## Optional Boundaries
 
@@ -22,6 +22,7 @@ Do not use role-only names such as `api.ts`, `service.ts`, `query.ts`, `server.t
 | `Feature.query.ts` | cache identity or query options matter | query keys, option factories, normalized query params | JSX and button event logic |
 | `Feature.server.ts` | server runtime access differs from browser access | server-only calls, secrets, server fetch wrappers | browser APIs |
 | `Feature.client.ts` | browser-safe calls need a boundary | client fetch wrappers, client runtime behavior | server-only secrets |
+| `Feature.action.ts` | framework mutations need a named feature boundary | server actions, input validation, invalidation, refresh behavior | rendering and broad use-case orchestration |
 | `Feature.store.ts` | feature-owned persistence or subscriptions exist | state boundary, storage adapter calls, subscriptions | rendering and route coupling |
 | `Feature.adapter.ts` | external data shape differs from internal shape | mapping, generated client adaptation, DTO conversion | orchestration and visual concerns |
 
@@ -47,4 +48,10 @@ Avoid this:
 
 ## Data Library Neutrality
 
-React Query, SWR, Apollo, generated REST clients, GraphQL clients, server actions, and route loaders are implementation details. Keep the ownership model stable even when the library changes.
+React Query, SWR, Apollo, generated REST clients, GraphQL clients, React Server Components, server actions, route loaders, and Cache Components are implementation details. Keep the ownership model stable even when the library changes.
+
+## Server Component Reads
+
+In RSC projects, feature-owned async server components may fetch the data they render instead of receiving loader-shaped prop bundles from a route file.
+
+Keep reads self-contained, but do not refetch data that a parent component already owns. When query identity, request dedupe, server-only helpers, or cache tags need a named boundary, put that code in `Feature.query.ts`, `Feature.server.ts`, or `Feature.adapter.ts` instead of in the route file.

@@ -85,11 +85,12 @@ This applies to every feature-root role file when it exists:
 - `Feature.query.ts`
 - `Feature.server.ts`
 - `Feature.client.ts`
+- `Feature.action.ts`
 - `Feature.store.ts`
 - `Feature.adapter.ts`
 - `Feature.fragment.ts`
 
-Do not create role-only filenames in `features/<feature>/`, such as `api.ts`, `service.ts`, `schema.ts`, `type.ts`, `types.ts`, `util.ts`, `utils.ts`, `query.ts`, `server.ts`, `client.ts`, `store.ts`, or `adapter.ts`.
+Do not create role-only filenames in `features/<feature>/`, such as `api.ts`, `service.ts`, `schema.ts`, `type.ts`, `types.ts`, `util.ts`, `utils.ts`, `query.ts`, `server.ts`, `client.ts`, `action.ts`, `actions.ts`, `store.ts`, or `adapter.ts`.
 
 Use the feature-name prefix even when the folder already names the feature. This keeps imports, editor tabs, search results, and agent refactors unambiguous.
 
@@ -106,6 +107,7 @@ Use the feature-name prefix even when the folder already names the feature. This
 | `features/<feature>/<Feature>.query.ts` | query/cache contract | query keys, query options, cache identity | rendering, raw component event logic |
 | `features/<feature>/<Feature>.server.ts` | server-only feature access | server runtime calls, server-only secrets, server-side fetch wrappers | browser APIs, client-only state |
 | `features/<feature>/<Feature>.client.ts` | client-side feature access | browser-safe fetch wrappers, client runtime calls | server-only secrets, framework route logic |
+| `features/<feature>/<Feature>.action.ts` | framework mutation boundary | server actions, input validation, invalidation, refresh behavior | rendering, broad use-case orchestration |
 | `features/<feature>/<Feature>.store.ts` | feature-owned state boundary | feature persistence, subscriptions, browser-only side effects | JSX, route coupling, generic unrelated storage |
 | `features/<feature>/<Feature>.adapter.ts` | boundary conversion | external-to-internal mapping, generated client adaptation | rendering, request orchestration |
 | `features/<feature>/<Feature>.schema.ts` | validation and parsing | form validation, boundary validation, parsing | transport setup, rendering |
@@ -119,6 +121,7 @@ Optional files should be added when they clarify a real boundary:
 - add `<Feature>.query.ts` when cache identity, query keys, or query options are repeated or need tests
 - add `<Feature>.server.ts` when server runtime behavior differs from browser behavior
 - add `<Feature>.client.ts` when browser/client calls need a separate boundary
+- add `<Feature>.action.ts` when server actions or framework mutations need validation, invalidation, or runtime directives
 - add `<Feature>.store.ts` when a feature owns persistent state, subscriptions, or browser-only side effects
 - add `<Feature>.adapter.ts` when external contracts need conversion before the feature uses them
 
@@ -140,7 +143,7 @@ The standard does not choose localStorage, IndexedDB, cookies, or any other back
 
 - route-facing screens: `PascalCaseScreen.tsx`
 - feature support files: `Feature.api.ts`, `Feature.service.ts`, `Feature.schema.ts`, `Feature.type.ts`, `Feature.util.ts`
-- optional feature files: `Feature.query.ts`, `Feature.server.ts`, `Feature.client.ts`, `Feature.store.ts`, `Feature.adapter.ts`
+- optional feature files: `Feature.query.ts`, `Feature.server.ts`, `Feature.client.ts`, `Feature.action.ts`, `Feature.store.ts`, `Feature.adapter.ts`
 - event handlers: `on...`
 - booleans: `is...`, `has...`, `should...`, `can...`
 
@@ -150,7 +153,7 @@ Prefer named exports for reusable modules:
 
 - feature components in `features/<feature>/components`
 - shared generic components in `components`
-- hooks, services, utilities, schemas, stores, adapters, and query helpers
+- hooks, services, utilities, schemas, actions, stores, adapters, and query helpers
 
 Use default exports only for files that are naturally a single route-facing entry:
 
@@ -203,7 +206,19 @@ When the project uses server/client runtime separation or a query library, inser
 - `<Feature>.query.ts` owns query keys and options
 - `<Feature>.server.ts` owns server-only access
 - `<Feature>.client.ts` owns client-side access
+- `<Feature>.action.ts` owns framework mutations when actions need a named feature boundary
 - `<Feature>.adapter.ts` owns external contract conversion
+
+## RSC And Suspense Pattern
+
+In Next.js App Router or other RSC projects, do not turn route files into page-wide data loaders by default. Feature-owned async server components may fetch the data they render through feature-owned query or server helpers.
+
+Use this pattern when the project streams server-rendered regions:
+
+- feature component files export both `Name` and `NameSkeleton` when the skeleton belongs only to that component
+- route-facing screens or framework route shells place `<Suspense>` around user-meaningful regions
+- static chrome, layout, and headings stay outside Suspense boundaries when possible
+- client components with `"use client"` stay as small and deep in the tree as the interaction allows
 
 ## Testing Defaults
 
@@ -242,6 +257,7 @@ Split code when:
 - a screen stops being thin
 - a component mixes transport logic and visual logic
 - browser-only APIs leak into rendering code
+- a route file fetches unrelated feature data just to pass it down through props
 - one feature file begins owning multiple unrelated responsibilities
 
 Do not introduce `widgets` by default. Consider it only when a repeated, meaningful, cross-feature UI block appears and cannot be naturally owned by one feature.
