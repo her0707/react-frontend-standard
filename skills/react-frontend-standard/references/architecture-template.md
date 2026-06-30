@@ -157,6 +157,7 @@ Optional additions by project needs:
 - `<Feature>.query.ts`: query keys, cache identity, and query option factories
 - `<Feature>.server.ts`: server-only feature access
 - `<Feature>.client.ts`: browser/client feature access
+- `<Feature>.action.ts`: framework-specific mutations, server actions, validation, and invalidation
 - `<Feature>.store.ts`: feature-owned state or browser-only side-effect boundary
 - `<Feature>.adapter.ts`: conversion between external contracts and internal shapes
 - `<Feature>.fragment.ts`: GraphQL fragments or query fragments when used
@@ -164,7 +165,7 @@ Optional additions by project needs:
 Optional files should appear when they clarify responsibilities, not because every feature must use every suffix.
 
 When a feature-root role file exists, it must use `<Feature>.<role>.ts`.
-Do not use role-only names such as `api.ts`, `service.ts`, `schema.ts`, `type.ts`, `types.ts`, `query.ts`, `server.ts`, `client.ts`, `store.ts`, or `adapter.ts` inside `features/<feature>/`.
+Do not use role-only names such as `api.ts`, `service.ts`, `schema.ts`, `type.ts`, `types.ts`, `query.ts`, `server.ts`, `client.ts`, `action.ts`, `actions.ts`, `store.ts`, or `adapter.ts` inside `features/<feature>/`.
 
 ## Ownership Model
 
@@ -213,7 +214,7 @@ Use this dependency direction as the default rule:
 2. `screens`
 3. `features/*/components`
 4. `features/*/hooks`
-5. `features/*/(api|service|schema|type|util|query|server|client|store|adapter|optional files)`
+5. `features/*/(api|service|schema|type|util|query|server|client|action|store|adapter|optional files)`
 6. shared `components`, `hooks`, `lib`, `services`, `utils`, `types`
 7. optional generated artifacts
 
@@ -226,12 +227,15 @@ For REST-oriented projects:
 - keep cache/query identity in `<Feature>.query.ts` when using a query library
 - keep server-only access in `<Feature>.server.ts` when the framework has server execution
 - keep client-side access in `<Feature>.client.ts` when browser calls differ from server calls
+- keep framework-specific mutations and server actions in `<Feature>.action.ts` when they need validation, invalidation, or runtime directives
 - keep screen-facing state connection in feature hooks
 - do not place transport details inside route files, screens, or feature components
 
-These files still use feature-prefixed names: `<Feature>.api.ts`, `<Feature>.service.ts`, `<Feature>.query.ts`, `<Feature>.server.ts`, and `<Feature>.client.ts`.
+These files still use feature-prefixed names: `<Feature>.api.ts`, `<Feature>.service.ts`, `<Feature>.query.ts`, `<Feature>.server.ts`, `<Feature>.client.ts`, and `<Feature>.action.ts`.
 
 Projects using GraphQL, generated clients, server actions, loaders, or other data systems should keep the same ownership principle while adapting the concrete files.
+
+For React Server Component projects, feature-owned async server components may fetch the data they render instead of receiving a page-wide loader prop bundle. Route-facing screens or framework route shells should place Suspense boundaries around meaningful loading regions and keep static chrome outside those boundaries when possible.
 
 ## Browser-Only Boundary
 
@@ -247,5 +251,5 @@ Before adding or moving code, answer:
 - is this route-facing composition, feature-owned behavior, or a shared primitive
 - which feature owns the business meaning
 - does this code call transport, browser-only APIs, or external systems directly
-- should this code live in `api`, `service`, `hook`, `query`, `server`, `client`, `store`, `adapter`, or `component`
+- should this code live in `api`, `service`, `hook`, `query`, `server`, `client`, `action`, `store`, `adapter`, or `component`
 - is a new layer actually needed, or does it only add indirection

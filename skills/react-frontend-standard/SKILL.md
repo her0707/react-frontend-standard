@@ -1,6 +1,6 @@
 ---
 name: react-frontend-standard
-description: Shared architecture and coding standard for React frontend repositories centered on thin route-facing screens, feature ownership, and shared UI primitives. Use when Codex needs to scaffold a new React frontend project, align an existing repository to a consistent structure, install or refresh the local standard skill, create a thin AGENTS.md router, optionally generate starter architecture/coding-pattern documents, or review whether code is placed in the right layer. Treat routing frameworks and data access technology such as React Router, Next.js, Remix, TanStack Router, REST, GraphQL, React Query, Apollo, SWR, server actions, route loaders, and generated clients as implementation details rather than the architectural center.
+description: Shared architecture and coding standard for React frontend repositories centered on thin route-facing screens, feature ownership, and shared UI primitives. Use when Codex needs to scaffold a new React frontend project, align an existing repository to a consistent structure, install or refresh the local standard skill, create a thin AGENTS.md router, optionally generate starter architecture/coding-pattern documents, or review whether code is placed in the right layer. Treat routing frameworks and data access technology such as React Router, Next.js, Remix, TanStack Router, REST, GraphQL, React Query, Apollo, SWR, React Server Components, server actions, route loaders, Cache Components, and generated clients as implementation details rather than the architectural center.
 ---
 
 # React Frontend Standard
@@ -16,7 +16,7 @@ Use this skill to apply the same React frontend structure and coding rules acros
 - `pages` must not become a parallel page-composition layer beside `screens`.
 - shared `components` are generic and domain-free.
 - optional feature files appear only when they clarify a real boundary.
-- feature-root role files use `<Feature>.<role>.ts`; role-only names such as `api.ts`, `schema.ts`, `type.ts`, and `types.ts` are not part of this standard.
+- feature-root role files use `<Feature>.<role>.ts`; role-only names such as `api.ts`, `schema.ts`, `type.ts`, `types.ts`, `action.ts`, and `actions.ts` are not part of this standard.
 - reusable modules use named exports by default; framework route entries and route-facing screens may use default exports when they are single-entry files.
 - local project docs describe project-specific facts and intentional exceptions.
 - this installed skill is the reusable standard source of truth.
@@ -31,12 +31,13 @@ Repository-only `examples/` can help maintain this package, but downstream proje
 4. Treat `ARCHITECTURE.md` and `docs/coding-patterns.md` as optional project notes when they exist, not as newer copies of this reusable standard.
 5. Verify local docs against actual files, commands, route entries, providers, and feature folders.
 6. Identify routing framework boundaries using `references/routing-framework-notes.md`.
-7. Map feature ownership from backend domains or stable frontend use cases.
-8. Check data-access and side-effect boundaries using `references/data-boundary-notes.md`.
-9. Check feature-root role filenames; rename role-only files to `<Feature>.<role>.ts`.
-10. Check export style; prefer named exports for reusable modules and reserve default exports for route entries and screens.
-11. Check test placement and verification commands using `references/testing-notes.md`.
-12. Record only project-specific commands, routing setup, feature map, and intentional exceptions in local docs.
+7. For Next.js App Router or RSC projects, check `references/rsc-next-app-router-notes.md`.
+8. Map feature ownership from backend domains or stable frontend use cases.
+9. Check data-access and side-effect boundaries using `references/data-boundary-notes.md`.
+10. Check feature-root role filenames; rename role-only files to `<Feature>.<role>.ts`.
+11. Check export style; prefer named exports for reusable modules and reserve default exports for route entries and screens.
+12. Check test placement and verification commands using `references/testing-notes.md`.
+13. Record only project-specific commands, routing setup, feature map, and intentional exceptions in local docs.
 
 ## Default Structure
 
@@ -72,11 +73,12 @@ Optional additions by project needs:
 - `<Feature>.query.ts`
 - `<Feature>.server.ts`
 - `<Feature>.client.ts`
+- `<Feature>.action.ts`
 - `<Feature>.store.ts`
 - `<Feature>.adapter.ts`
 - `<Feature>.fragment.ts`
 
-Do not use role-only feature-root filenames such as `api.ts`, `service.ts`, `schema.ts`, `type.ts`, `types.ts`, `query.ts`, `server.ts`, `client.ts`, `store.ts`, or `adapter.ts`.
+Do not use role-only feature-root filenames such as `api.ts`, `service.ts`, `schema.ts`, `type.ts`, `types.ts`, `query.ts`, `server.ts`, `client.ts`, `action.ts`, `actions.ts`, `store.ts`, or `adapter.ts`.
 
 ## Ownership Rules
 
@@ -89,10 +91,11 @@ Do not use role-only feature-root filenames such as `api.ts`, `service.ts`, `sch
 - cache/query identity can go in `<Feature>.query.ts`
 - server-only feature access can go in `<Feature>.server.ts`
 - browser/client feature access can go in `<Feature>.client.ts`
+- framework-specific mutations and server actions can go in `<Feature>.action.ts`
 - browser-only state and side effects can go in `<Feature>.store.ts` or `<Feature>.adapter.ts`
 - screen-facing state connection goes in feature `hooks/`
 - generic reusable UI goes in `components`
-- reusable components, hooks, services, utilities, schemas, stores, adapters, and query helpers use named exports by default
+- reusable components, hooks, services, utilities, schemas, actions, stores, adapters, and query helpers use named exports by default
 - framework route entries and screen files may use default exports when the file represents one route-facing entry
 
 ## Widget Rule
@@ -113,6 +116,7 @@ Only consider a `widgets` layer when:
 - `references/adoption-checklist.md`
 - `references/agents-snippet.md`
 - `references/routing-framework-notes.md`
+- `references/rsc-next-app-router-notes.md`
 - `references/data-boundary-notes.md`
 - `references/testing-notes.md`
 - `references/document-sync-checklist.md`

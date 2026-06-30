@@ -108,6 +108,7 @@ This directory packages the standards discussed in this project into a reusable 
 - shared generic `components`
 - REST-friendly `<Feature>.api.ts -> <Feature>.service.ts -> hook -> component -> screen` layering
 - feature-root role files named as `<Feature>.<role>.ts`
+- optional RSC/App Router guidance for feature-owned async server components, Suspense regions, skeletons, and server actions
 - named exports for reusable modules, with default exports reserved for route-facing entries
 - router-config projects such as React Router route to screens directly unless a thin route shell is needed
 - optional, not default, `widgets`
@@ -129,6 +130,7 @@ react-frontend-standard/
 |           |-- coding-patterns-template.md
 |           |-- data-boundary-notes.md
 |           |-- document-sync-checklist.md
+|           |-- rsc-next-app-router-notes.md
 |           |-- routing-framework-notes.md
 |           `-- testing-notes.md
 |-- templates/
@@ -152,8 +154,9 @@ react-frontend-standard/
 2. Define initial `features` from backend domains or stable user use cases.
 3. Add thin route-entry `screens`.
 4. In router-config projects such as React Router, point routes at screens directly unless a thin route shell is actually needed.
-5. Add `--with-docs` only when the project wants starter `ARCHITECTURE.md` and `docs/coding-patterns.md` scaffolds.
-6. Record project-specific commands, routing setup, and exceptions in local docs.
+5. In Next.js App Router or RSC projects, use the installed skill's RSC reference for server component, Suspense, action, and cache boundaries.
+6. Add `--with-docs` only when the project wants starter `ARCHITECTURE.md` and `docs/coding-patterns.md` scaffolds.
+7. Record project-specific commands, routing setup, and exceptions in local docs.
 
 ### Existing repository
 
@@ -170,7 +173,8 @@ react-frontend-standard/
 - `pages`, `app`, `routes`, and route modules are routing shells, not a parallel page-composition layer.
 - React Router-style route config should usually render `screens` directly.
 - `features` are the ownership center.
-- feature-root role files use `<Feature>.<role>.ts`, not role-only names such as `api.ts`, `schema.ts`, `type.ts`, or `types.ts`.
+- feature-root role files use `<Feature>.<role>.ts`, not role-only names such as `api.ts`, `schema.ts`, `type.ts`, `types.ts`, `action.ts`, or `actions.ts`.
+- RSC projects should keep framework route files as shells and put feature reads, actions, skeletons, and client boundaries in feature-owned files.
 - `components` are shared generic UI primitives.
 - reusable modules use named exports; route files and screens may use default exports.
 - `widgets` are optional and only introduced for repeated, meaningful, cross-feature UI blocks.

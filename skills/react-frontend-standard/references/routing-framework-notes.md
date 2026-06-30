@@ -29,7 +29,7 @@ Router-config projects such as React Router or TanStack Router usually do not ne
 | Framework shape | Treat as | Preferred delegation |
 |---|---|---|
 | React Router or TanStack Router config entry | route config | render a `src/screens/*Screen.tsx` component directly |
-| `src/app/**/page.tsx` | routing shell | render a `src/screens/*Screen.tsx` component |
+| `src/app/**/page.tsx` | routing shell | render a `src/screens/*Screen.tsx` component; for RSC projects also read `rsc-next-app-router-notes.md` |
 | `src/pages/*.tsx` | routing shell | render a `src/screens/*Screen.tsx` component |
 | `src/pages/*.tsx` in a router-config project | optional routing shell | keep only when it owns real route-shell work; otherwise route directly to the screen |
 | route module with loader/action | routing shell and framework boundary | keep feature logic in feature services or adapters |
@@ -41,6 +41,7 @@ Ask these questions before adding logic to a route file:
 
 - Does the framework require this code to live here?
 - Can this router config render the screen directly?
+- Can data-dependent regions suspend below the route shell instead of turning the route file into a page-wide loader?
 - Can this be named as a feature use case?
 - Would this logic be useful without knowing the route path?
 - Can this be unit tested more easily in a feature file?
