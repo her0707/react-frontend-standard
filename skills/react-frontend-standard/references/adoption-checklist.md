@@ -31,13 +31,14 @@ Use this checklist when installing or applying the React frontend standard.
 9. Add or clarify optional feature files where current code mixes responsibilities.
 10. Verify tests exist at the layer that owns the behavior.
 11. If `.react-frontend-standard/manifest.json` exists, run `npx -y react-frontend-standard@latest check .` before refreshing the installed standard.
-12. If no manifest exists, run `npx -y react-frontend-standard@latest init . --with-hooks` once, then `npx -y react-frontend-standard@latest sync .`.
-13. Refresh only project-specific docs after checking actual files and commands.
+12. If `check` or `sync` reports `repair required`, run `npx -y react-frontend-standard@latest repair-hooks .` to replace only generated hook assets.
+13. If no manifest exists, run `npx -y react-frontend-standard@latest init . --with-hooks` once, then `npx -y react-frontend-standard@latest sync .`.
+14. Refresh only project-specific docs after checking actual files and commands.
 
 ## Applying To Another Project
 
 1. Read local docs first.
-2. If a manifest exists, run `npx -y react-frontend-standard@latest sync .` when the installed standard is stale.
+2. If a manifest exists, run `npx -y react-frontend-standard@latest sync .` when the installed standard is stale. Use `repair-hooks .` only when the CLI reports `repair required`.
 3. Treat optional `ARCHITECTURE.md` and `docs/coding-patterns.md` as project notes, not as a duplicate source for the reusable standard.
 4. Map route files, screens, features, and shared primitives.
 5. Keep `pages` as routing shells only, and prefer route config to screens directly when the router allows it.
