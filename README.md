@@ -60,6 +60,7 @@ node ./bin/react-frontend-standard.js init . --without-skill
 node ./bin/react-frontend-standard.js init . --overwrite
 node ./bin/react-frontend-standard.js check .
 node ./bin/react-frontend-standard.js sync .
+node ./bin/react-frontend-standard.js repair-hooks .
 ```
 
 After package installation, both `react-frontend-standard` and `rfs` are exposed as
@@ -88,6 +89,19 @@ npx -y react-frontend-standard@latest sync .
 and optional docs only when they still match the previously installed hash,
 preserving local edits by reporting `skip modified: <path>`. Use `--overwrite`
 only when the target project's local changes should be replaced.
+
+`sync` also verifies managed assets when the manifest version is already current.
+If a generated hook was locally changed or an older Windows hook cannot update
+itself, `check` or `sync` reports `repair required`. Repair only the hook assets,
+then complete a safe full sync with:
+
+```bash
+npx -y react-frontend-standard@latest repair-hooks .
+```
+
+`repair-hooks` overwrites `.react-frontend-standard/hooks/session-start.mjs`,
+`.codex/hooks.json`, and `.claude/settings.json`. Other managed files still use
+safe sync behavior, so modified `AGENTS.md` and optional project docs are preserved.
 
 When installed with `--with-hooks`, the target project receives:
 
@@ -165,7 +179,8 @@ react-frontend-standard/
 3. Move raw transport logic into feature `<Feature>.api.ts`, `<Feature>.service.ts`, and feature hooks where helpful.
 4. Run `npx react-frontend-standard init . --with-hooks` once when no manifest exists.
 5. Run `npx react-frontend-standard sync .` to refresh the installed skill while preserving modified local docs.
-6. Add `--with-docs` only when the project wants optional generated docs managed by this package.
+6. If sync reports `repair required`, run `npx -y react-frontend-standard@latest repair-hooks .` instead of a broad `sync --overwrite`.
+7. Add `--with-docs` only when the project wants optional generated docs managed by this package.
 
 ## Core Rules
 

@@ -14,7 +14,7 @@ This repository uses the local `react-frontend-standard` skill as the reusable f
 
 - Use the installed skill when bootstrapping, aligning structure, reviewing code placement, or refreshing frontend standards.
 - Use local docs for project-specific facts: commands, package manager, routing setup, feature map, and intentional exceptions.
-- If `.react-frontend-standard/manifest.json` exists, use `npx -y react-frontend-standard@latest check .` to check standard drift and `npx -y react-frontend-standard@latest sync .` to refresh the installed skill and managed assets safely.
+- If `.react-frontend-standard/manifest.json` exists, use `npx -y react-frontend-standard@latest check .` to check standard drift and `npx -y react-frontend-standard@latest sync .` to refresh the installed skill and managed assets safely. If either command reports `repair required`, use `npx -y react-frontend-standard@latest repair-hooks .` instead of a broad `sync --overwrite`.
 - If local docs conflict with the reusable skill, treat local docs as project-specific exceptions.
 - Before relying on project notes, verify that referenced files, commands, route entries, provider files, and feature folders still exist.
 

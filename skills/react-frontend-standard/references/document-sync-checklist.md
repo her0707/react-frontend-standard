@@ -37,3 +37,5 @@ Use this checklist before trusting, refreshing, or regenerating project docs.
 When docs and code disagree, update the smallest affected local document. Do not keep outdated examples or copied text as authoritative.
 
 When `sync` reports `skip modified: <path>`, preserve the local edits unless the project owner explicitly wants the generated version restored with `--overwrite`.
+
+When `check` or `sync` reports `repair required` for generated SessionStart assets, use `npx -y react-frontend-standard@latest repair-hooks .`. This overwrites only the hook script and Codex/Claude hook registrations before running the remaining sync safely.

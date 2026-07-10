@@ -2,6 +2,7 @@
 
 import crypto from "node:crypto";
 import fs from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import process from "node:process";
 import readline from "node:readline";
@@ -48,6 +49,7 @@ const projectSkillPath = ".agents/skills/react-frontend-standard";
 const hookScriptPath = ".react-frontend-standard/hooks/session-start.mjs";
 const codexHooksPath = ".codex/hooks.json";
 const claudeSettingsPath = ".claude/settings.json";
+const hookManagedPaths = new Set([hookScriptPath, codexHooksPath, claudeSettingsPath]);
 
 const toPosixPath = value => value.split(path.sep).join("/");
 
@@ -125,7 +127,38 @@ const copyDir = (sourceDir, targetDir) => {
   }
 };
 
+const replaceDir = (sourceDir, targetDir) => {
+  fs.rmSync(targetDir, { recursive: true, force: true });
+  copyDir(sourceDir, targetDir);
+};
+
 const displayPath = target => toPosixPath(path.relative(process.cwd(), target));
+
+const packageManagerEnv = () => {
+  const env = { ...process.env };
+  const hasNpmCache = Object.keys(env).some(key => key.toLowerCase() === "npm_config_cache");
+
+  if (!hasNpmCache) {
+    env.npm_config_cache = path.join(tmpdir(), "react-frontend-standard-npm-cache");
+  }
+
+  return env;
+};
+
+const runPackageManager = (name, commandArgs, options = {}) => {
+  const spawnOptions = {
+    encoding: "utf8",
+    windowsHide: true,
+    env: packageManagerEnv(),
+    ...options,
+  };
+
+  if (process.platform === "win32") {
+    return spawnSync("cmd.exe", ["/d", "/s", "/c", `${name}.cmd`, ...commandArgs], spawnOptions);
+  }
+
+  return spawnSync(name, commandArgs, spawnOptions);
+};
 
 const writeFileByMode = (source, target, mode) => {
   const relativeTarget = displayPath(target);
@@ -133,24 +166,25 @@ const writeFileByMode = (source, target, mode) => {
 
   if (exists && mode === "skip") {
     console.log(`skip: ${relativeTarget} already exists`);
-    return;
+    return { status: "skipped" };
   }
 
   copyFile(source, target);
   console.log(`${exists ? "overwrite" : "create"}: ${relativeTarget}`);
+  return { status: "applied" };
 };
 
-const writeGeneratedTextByMode = (content, target, mode) => {
-  const relativeTarget = displayPath(target);
+const writeGeneratedTextByMode = (content, target, mode, displayTarget = displayPath(target)) => {
   const exists = fs.existsSync(target);
 
   if (exists && mode === "skip") {
-    console.log(`skip: ${relativeTarget} already exists`);
-    return;
+    console.log(`skip: ${displayTarget} already exists`);
+    return { status: "skipped" };
   }
 
   writeTextFile(target, content);
-  console.log(`${exists ? "overwrite" : "create"}: ${relativeTarget}`);
+  console.log(`${exists ? "overwrite" : "create"}: ${displayTarget}`);
+  return { status: "applied" };
 };
 
 const copySkillByMode = (source, target, mode) => {
@@ -159,11 +193,12 @@ const copySkillByMode = (source, target, mode) => {
 
   if (exists && mode === "skip") {
     console.log(`skip: ${relativeTarget} already exists`);
-    return;
+    return { status: "skipped" };
   }
 
-  copyDir(source, target);
+  replaceDir(source, target);
   console.log(`${exists ? "overwrite" : "create"}: ${relativeTarget}`);
+  return { status: "applied" };
 };
 
 const resolveUserSkillPath = () => {
@@ -387,20 +422,46 @@ const managedFilesFor = ({ installSkill, installHooks, installDocs }) => {
   return managedFiles;
 };
 
-const writeManifest = ({ targetRoot, installSkill, installHooks, installDocs }) => {
-  const previousManifest = readManifest(targetRoot);
+const managedFilesAfterOutcomes = ({ installSkill, installHooks, installDocs, previousManifest, outcomes }) => {
+  const outcomeByPath = new Map(outcomes.map(outcome => [outcome.path, outcome]));
+
+  return managedFilesFor({ installSkill, installHooks, installDocs }).map(desiredEntry => {
+    const outcome = outcomeByPath.get(desiredEntry.path);
+
+    if (outcome?.status !== "skipped") {
+      return desiredEntry;
+    }
+
+    const previousEntry = findManifestEntry(previousManifest, desiredEntry.path);
+    return {
+      ...desiredEntry,
+      hash: previousEntry?.hash ?? null,
+      modified: true,
+    };
+  });
+};
+
+const writeManifest = ({
+  targetRoot,
+  installSkill,
+  installHooks,
+  installDocs,
+  version = packageVersion,
+  managedFiles = managedFilesFor({ installSkill, installHooks, installDocs }),
+  previousManifest = readManifest(targetRoot),
+}) => {
   const now = new Date().toISOString();
 
   writeJsonFile(manifestPathFor(targetRoot), {
     schemaVersion: 1,
     package: packageName,
-    version: packageVersion,
+    version,
     installedAt: previousManifest?.installedAt ?? now,
     updatedAt: now,
     installSkill,
     installHooks,
     installDocs,
-    managedFiles: managedFilesFor({ installSkill, installHooks, installDocs }),
+    managedFiles,
   });
 };
 
@@ -454,11 +515,30 @@ const parseInstallDocs = (cliArgs, fallback = false) => {
 
 const targetArgFrom = cliArgs => cliArgs.find(arg => !arg.startsWith("--")) ?? ".";
 
-const installHookFiles = ({ targetRoot, overwriteMode }) => {
-  writeGeneratedTextByMode(sessionHookScript(), path.join(targetRoot, hookScriptPath), overwriteMode);
-  writeGeneratedTextByMode(codexHooksJson(), path.join(targetRoot, codexHooksPath), overwriteMode);
-  writeGeneratedTextByMode(claudeSettingsJson(), path.join(targetRoot, claudeSettingsPath), overwriteMode);
-};
+const installHookFiles = ({ targetRoot, overwriteMode }) => [
+  {
+    path: hookScriptPath,
+    ...writeGeneratedTextByMode(
+      sessionHookScript(),
+      path.join(targetRoot, hookScriptPath),
+      overwriteMode,
+      hookScriptPath,
+    ),
+  },
+  {
+    path: codexHooksPath,
+    ...writeGeneratedTextByMode(codexHooksJson(), path.join(targetRoot, codexHooksPath), overwriteMode, codexHooksPath),
+  },
+  {
+    path: claudeSettingsPath,
+    ...writeGeneratedTextByMode(
+      claudeSettingsJson(),
+      path.join(targetRoot, claudeSettingsPath),
+      overwriteMode,
+      claudeSettingsPath,
+    ),
+  },
+];
 
 const initProject = ({
   targetRoot,
@@ -469,25 +549,51 @@ const initProject = ({
 }) => {
   ensureDir(targetRoot);
 
+  const previousManifest = readManifest(targetRoot);
+  const outcomes = [];
   const templateSpecs = installDocs ? [agentsTemplateSpec, ...docTemplateSpecs] : [agentsTemplateSpec];
 
   for (const spec of templateSpecs) {
-    writeFileByMode(spec.sourcePath, path.join(targetRoot, spec.path), overwriteMode);
+    outcomes.push({
+      path: spec.path,
+      ...writeFileByMode(spec.sourcePath, path.join(targetRoot, spec.path), overwriteMode),
+    });
   }
 
   if (installSkill === "project") {
-    copySkillByMode(skillSourcePath, path.join(targetRoot, projectSkillPath), "overwrite");
+    outcomes.push({
+      path: projectSkillPath,
+      ...copySkillByMode(skillSourcePath, path.join(targetRoot, projectSkillPath), "overwrite"),
+    });
   }
 
   if (installSkill === "user") {
-    copySkillByMode(skillSourcePath, resolveUserSkillPath(), "overwrite");
+    const userSkillPath = resolveUserSkillPath();
+    outcomes.push({
+      path: userSkillPath,
+      ...copySkillByMode(skillSourcePath, userSkillPath, "overwrite"),
+    });
   }
 
   if (installHooks) {
-    installHookFiles({ targetRoot, overwriteMode });
+    outcomes.push(...installHookFiles({ targetRoot, overwriteMode }));
   }
 
-  writeManifest({ targetRoot, installSkill, installHooks, installDocs });
+  const managedFiles = managedFilesAfterOutcomes({
+    installSkill,
+    installHooks,
+    installDocs,
+    previousManifest,
+    outcomes,
+  });
+  writeManifest({
+    targetRoot,
+    installSkill,
+    installHooks,
+    installDocs,
+    managedFiles,
+    previousManifest,
+  });
 
   console.log("");
   console.log("next:");
@@ -517,11 +623,8 @@ const latestPackageVersion = () => {
     return process.env.RFS_NPM_LATEST_VERSION;
   }
 
-  const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
-  const result = spawnSync(npmCommand, ["view", `${packageName}@latest`, "version"], {
-    encoding: "utf8",
+  const result = runPackageManager("npm", ["view", `${packageName}@latest`, "version"], {
     timeout: 30_000,
-    windowsHide: true,
   });
 
   if (result.status !== 0) {
@@ -530,6 +633,31 @@ const latestPackageVersion = () => {
   }
 
   return result.stdout.trim();
+};
+
+const hookFilesNeedingRepair = ({ targetRoot, manifest }) => {
+  if (!manifest.installHooks) {
+    return [];
+  }
+
+  return managedFilesFor({
+    installSkill: manifest.installSkill ?? "none",
+    installHooks: true,
+    installDocs: Boolean(manifest.installDocs),
+  })
+    .filter(entry => hookManagedPaths.has(entry.path))
+    .filter(desiredEntry => {
+      const installedEntry = findManifestEntry(manifest, desiredEntry.path);
+      const target = path.join(targetRoot, desiredEntry.path);
+
+      return (
+        !installedEntry ||
+        installedEntry.hash !== desiredEntry.hash ||
+        !fs.existsSync(target) ||
+        hashPath(target) !== desiredEntry.hash
+      );
+    })
+    .map(entry => entry.path);
 };
 
 const checkProject = targetRoot => {
@@ -547,6 +675,12 @@ const checkProject = targetRoot => {
     return 1;
   }
 
+  const repairPaths = hookFilesNeedingRepair({ targetRoot, manifest });
+  if (repairPaths.length > 0) {
+    console.log(`repair required: ${repairPaths.join(", ")}`);
+    return 1;
+  }
+
   console.log(`up to date: ${packageName} ${manifest.version}`);
   return 0;
 };
@@ -558,7 +692,7 @@ const syncFileFromSource = ({ targetRoot, spec, previousEntry, overwriteMode }) 
 
   if (targetExists && hashPath(target) === sourceHash) {
     console.log(`ok: ${spec.path}`);
-    return;
+    return { path: spec.path, status: "ok" };
   }
 
   if (targetExists && overwriteMode !== "overwrite") {
@@ -567,12 +701,13 @@ const syncFileFromSource = ({ targetRoot, spec, previousEntry, overwriteMode }) 
 
     if (!previousHash || targetHash !== previousHash) {
       console.log(`skip modified: ${spec.path}`);
-      return;
+      return { path: spec.path, status: "skipped" };
     }
   }
 
   copyFile(spec.sourcePath, target);
   console.log(`${targetExists ? "update" : "create"}: ${spec.path}`);
+  return { path: spec.path, status: "applied" };
 };
 
 const syncGeneratedText = ({ targetRoot, relativePath, content, previousEntry, overwriteMode }) => {
@@ -582,7 +717,7 @@ const syncGeneratedText = ({ targetRoot, relativePath, content, previousEntry, o
 
   if (targetExists && hashPath(target) === sourceHash) {
     console.log(`ok: ${relativePath}`);
-    return;
+    return { path: relativePath, status: "ok" };
   }
 
   if (targetExists && overwriteMode !== "overwrite") {
@@ -591,28 +726,45 @@ const syncGeneratedText = ({ targetRoot, relativePath, content, previousEntry, o
 
     if (!previousHash || targetHash !== previousHash) {
       console.log(`skip modified: ${relativePath}`);
-      return;
+      return { path: relativePath, status: "skipped" };
     }
   }
 
   writeTextFile(target, content);
   console.log(`${targetExists ? "update" : "create"}: ${relativePath}`);
+  return { path: relativePath, status: "applied" };
 };
 
 const syncSkill = ({ targetRoot, installSkill }) => {
+  const outcomes = [];
+
   if (installSkill === "project") {
     const target = path.join(targetRoot, projectSkillPath);
     const targetExists = fs.existsSync(target);
-    copyDir(skillSourcePath, target);
-    console.log(`${targetExists ? "update" : "create"}: ${projectSkillPath}`);
+    if (targetExists && hashPath(target) === hashPath(skillSourcePath)) {
+      console.log(`ok: ${projectSkillPath}`);
+      outcomes.push({ path: projectSkillPath, status: "ok" });
+    } else {
+      replaceDir(skillSourcePath, target);
+      console.log(`${targetExists ? "update" : "create"}: ${projectSkillPath}`);
+      outcomes.push({ path: projectSkillPath, status: "applied" });
+    }
   }
 
   if (installSkill === "user") {
     const target = resolveUserSkillPath();
     const targetExists = fs.existsSync(target);
-    copyDir(skillSourcePath, target);
-    console.log(`${targetExists ? "update" : "create"}: ${displayPath(target)}`);
+    if (targetExists && hashPath(target) === hashPath(skillSourcePath)) {
+      console.log(`ok: ${displayPath(target)}`);
+      outcomes.push({ path: target, status: "ok" });
+    } else {
+      replaceDir(skillSourcePath, target);
+      console.log(`${targetExists ? "update" : "create"}: ${displayPath(target)}`);
+      outcomes.push({ path: target, status: "applied" });
+    }
   }
+
+  return outcomes;
 };
 
 const syncProject = ({ targetRoot, overwriteMode, installSkill, installHooks, installDocs }) => {
@@ -628,58 +780,116 @@ const syncProject = ({ targetRoot, overwriteMode, installSkill, installHooks, in
     return 0;
   }
 
-  const shouldSync =
-    overwriteMode === "overwrite" ||
-    compareVersions(manifest.version, packageVersion) < 0 ||
+  const outcomes = [];
+  const templateSpecs = installDocs ? [agentsTemplateSpec, ...docTemplateSpecs] : [agentsTemplateSpec];
+
+  for (const spec of templateSpecs) {
+    outcomes.push(
+      syncFileFromSource({
+        targetRoot,
+        spec,
+        previousEntry: findManifestEntry(manifest, spec.path),
+        overwriteMode,
+      }),
+    );
+  }
+
+  outcomes.push(...syncSkill({ targetRoot, installSkill }));
+
+  if (installHooks) {
+    outcomes.push(
+      syncGeneratedText({
+        targetRoot,
+        relativePath: hookScriptPath,
+        content: sessionHookScript(),
+        previousEntry: findManifestEntry(manifest, hookScriptPath),
+        overwriteMode,
+      }),
+      syncGeneratedText({
+        targetRoot,
+        relativePath: codexHooksPath,
+        content: codexHooksJson(),
+        previousEntry: findManifestEntry(manifest, codexHooksPath),
+        overwriteMode,
+      }),
+      syncGeneratedText({
+        targetRoot,
+        relativePath: claudeSettingsPath,
+        content: claudeSettingsJson(),
+        previousEntry: findManifestEntry(manifest, claudeSettingsPath),
+        overwriteMode,
+      }),
+    );
+  }
+
+  const skippedHookPaths = outcomes
+    .filter(outcome => outcome.status === "skipped" && hookManagedPaths.has(outcome.path))
+    .map(outcome => outcome.path);
+  const finalVersion = skippedHookPaths.length > 0 ? manifest.version : packageVersion;
+  const managedFiles = managedFilesAfterOutcomes({
+    installSkill,
+    installHooks,
+    installDocs,
+    previousManifest: manifest,
+    outcomes,
+  });
+  const manifestChanged =
+    finalVersion !== manifest.version ||
+    installSkill !== manifest.installSkill ||
+    installHooks !== Boolean(manifest.installHooks) ||
+    installDocs !== Boolean(manifest.installDocs) ||
+    JSON.stringify(managedFiles) !== JSON.stringify(manifest.managedFiles ?? []);
+
+  if (manifestChanged) {
+    writeManifest({
+      targetRoot,
+      installSkill,
+      installHooks,
+      installDocs,
+      version: finalVersion,
+      managedFiles,
+      previousManifest: manifest,
+    });
+  }
+
+  if (skippedHookPaths.length > 0) {
+    console.log(`repair required: ${skippedHookPaths.join(", ")}`);
+    return 1;
+  }
+
+  const appliedFiles = outcomes.filter(outcome => outcome.status === "applied");
+  const configurationChanged =
     installSkill !== manifest.installSkill ||
     installHooks !== Boolean(manifest.installHooks) ||
     installDocs !== Boolean(manifest.installDocs);
 
-  if (!shouldSync) {
+  if (finalVersion !== manifest.version || configurationChanged) {
+    console.log(`synced: ${packageName} ${manifest.version} -> ${packageVersion}`);
+  } else if (appliedFiles.length > 0) {
+    console.log(`repaired managed assets: ${packageName} ${packageVersion}`);
+  } else {
     console.log(`up to date: ${packageName} ${manifest.version}`);
-    return 0;
   }
 
-  const templateSpecs = installDocs ? [agentsTemplateSpec, ...docTemplateSpecs] : [agentsTemplateSpec];
-
-  for (const spec of templateSpecs) {
-    syncFileFromSource({
-      targetRoot,
-      spec,
-      previousEntry: findManifestEntry(manifest, spec.path),
-      overwriteMode,
-    });
-  }
-
-  syncSkill({ targetRoot, installSkill });
-
-  if (installHooks) {
-    syncGeneratedText({
-      targetRoot,
-      relativePath: hookScriptPath,
-      content: sessionHookScript(),
-      previousEntry: findManifestEntry(manifest, hookScriptPath),
-      overwriteMode,
-    });
-    syncGeneratedText({
-      targetRoot,
-      relativePath: codexHooksPath,
-      content: codexHooksJson(),
-      previousEntry: findManifestEntry(manifest, codexHooksPath),
-      overwriteMode,
-    });
-    syncGeneratedText({
-      targetRoot,
-      relativePath: claudeSettingsPath,
-      content: claudeSettingsJson(),
-      previousEntry: findManifestEntry(manifest, claudeSettingsPath),
-      overwriteMode,
-    });
-  }
-
-  writeManifest({ targetRoot, installSkill, installHooks, installDocs });
-  console.log(`synced: ${packageName} ${manifest.version} -> ${packageVersion}`);
   return 0;
+};
+
+const repairHooks = targetRoot => {
+  const manifest = readManifest(targetRoot);
+
+  if (!manifest) {
+    console.log(`not installed: ${manifestDirName}/${manifestFileName} was not found`);
+    return 1;
+  }
+
+  installHookFiles({ targetRoot, overwriteMode: "overwrite" });
+  return syncProject({
+    targetRoot,
+    overwriteMode: "safe",
+    installSkill: manifest.installSkill ?? "none",
+    installHooks: true,
+    installDocs: Boolean(manifest.installDocs),
+  });
 };
 
 const printHelp = () => {
@@ -691,6 +901,7 @@ Usage:
   react-frontend-standard init [target-path] [--with-skill] [--with-user-skill] [--without-skill] [--with-hooks] [--with-docs] [--overwrite]
   react-frontend-standard check [target-path]
   react-frontend-standard sync [target-path] [--with-skill] [--with-user-skill] [--with-hooks] [--without-hooks] [--with-docs] [--without-docs] [--overwrite]
+  react-frontend-standard repair-hooks [target-path]
   react-frontend-standard help
 
 Examples:
@@ -702,6 +913,7 @@ Examples:
   react-frontend-standard init . --without-skill
   react-frontend-standard sync .
   react-frontend-standard check .
+  react-frontend-standard repair-hooks .
 
 What it creates:
   - AGENTS.md as a thin standard router
@@ -851,6 +1063,11 @@ try {
         installDocs,
       }),
     );
+  }
+
+  if (command === "repair-hooks") {
+    const targetRoot = path.resolve(process.cwd(), targetArgFrom(args));
+    process.exit(repairHooks(targetRoot));
   }
 
   if (command === "wizard" || command === "setup" || command === ".") {

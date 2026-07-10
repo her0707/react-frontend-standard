@@ -28,7 +28,7 @@ Repository-only `examples/` can help maintain this package, but downstream proje
 
 1. Inspect the current repository shape with file search.
 2. Read local docs if present: `AGENTS.md`, README, product specs, and project-specific notes.
-3. If `.react-frontend-standard/manifest.json` exists, use `npx -y react-frontend-standard@latest check .` or `sync .` when the installed standard may be stale.
+3. If `.react-frontend-standard/manifest.json` exists, use `npx -y react-frontend-standard@latest check .` or `sync .` when the installed standard may be stale. If either command reports `repair required`, run `npx -y react-frontend-standard@latest repair-hooks .` to replace only generated hook assets before the safe full sync completes.
 4. Treat `ARCHITECTURE.md` and `docs/coding-patterns.md` as optional project notes when they exist, not as newer copies of this reusable standard.
 5. Verify local docs against actual files, commands, route entries, providers, and feature folders.
 6. Identify routing framework boundaries using `references/routing-framework-notes.md`.
